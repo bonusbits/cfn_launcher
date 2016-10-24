@@ -12,7 +12,9 @@ function usage() {
 usagemessage="
 usage: $0 [-u] -c ./config_file.yml
 
--c YAML Config File  :  (Required)
+-c Config File           :  YAML Script Config File Full Path (Required)
+-u Update Stack          :  Triggers Update Operation (Default is Create Stack)
+-h Help                  :  Displays Help Information
 
 YAML FILE FORMAT:
 stackname: My Bastion Stack
