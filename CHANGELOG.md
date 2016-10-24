@@ -1,6 +1,11 @@
 ##CHANGE LOG
 ---
 
+##1.1.4 - 10/24/2016 - Stable - Levon Becker
+* Fixed loop to work correctly with UPDATE_COMPLETE_CLEANUP_IN_PROGRESS status
+* Fixed a couple strings that needed to be interpreted for console action status
+* Changed script version
+
 ##1.1.3 - 10/24/2016 - Levon Becker
 * Changed argument switch to -c for config instead of -p for properties
 * Updated Readme

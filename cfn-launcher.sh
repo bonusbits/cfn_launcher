@@ -4,7 +4,7 @@
 
 # Static Variables
 successful=false
-script_version=1.1.3_10-24-2016
+script_version=1.1.4-20161024
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
@@ -99,6 +99,7 @@ ENABLE IAM:       $yaml_iamaccess
 TASK TYPE:        $task_type
 LOG FILE:         $yaml_logfile
 VERBOSE:          $yaml_verbose
+LAUNCHER CONFIG:  $config_file_path
 -----------------------------------------------------------------------------------------------------------------------
   "
 	echo "$HEADER" | tee -a ${yaml_logfile};
@@ -192,12 +193,19 @@ function monitor_stack_status {
       sleep ${wait_time}
       count=$(( count + 1 ))
     elif [ "$STATUS" == "${ACTION}_COMPLETE" ]; then
-      message 'REPORT: ${ACTION} Completed!'
+      message "REPORT: ${ACTION} Completed!"
       successful=true
       break
     elif [ "$STATUS" == "${ACTION}_FAILED" ]; then
-      message 'ERROR: ${ACTION} Failed!'
+      message "ERROR: ${ACTION} Failed!"
       successful=false
+    elif [ "$STATUS" == "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS" ]; then
+      message 'REPORT: Cleanup in Progress'
+      message "REPORT: Attempt $count of $max_waits."
+      message "REPORT: Polling again in ${wait_time} seconds..."
+      echo '' | tee -a ${yaml_logfile}
+      sleep ${wait_time}
+      count=$(( count + 1 ))
     elif [ "$STATUS" == "ROLLBACK_IN_PROGRESS" ]; then
       if [[ "$task_type" == "create-stack" && ${yaml_deletecreatefailures} == "true" ]]; then
         message 'ERROR: Failed and Rolling Back!'
