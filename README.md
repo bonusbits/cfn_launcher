@@ -190,7 +190,6 @@ This has been test
     ```bash
     PATH="/Users/username/cfn-launcher:$PATH"
     ```
-    
 
 ## Troubleshooting
 * Can not use underscores of hyphens in yaml properties file key names.
