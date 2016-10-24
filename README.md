@@ -177,16 +177,18 @@ This has been test
     [2016-10-20_10:08:16] ERROR: FAILED!
 
 ## Example Pathing Access Options
-1. Create alias
+Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
+Any one of a combo of these options can make it simple to fire off without much effort.
+* Create alias
     ```bash
     alias cfnl="/Users/username/cfn_launcher/cfn-launcher.sh"
     alias cfnl-bbprd-bastion-create="cfnl -c $HOME/cloudformation/cfnl_configs/create-bonusbits-prd-bastion.yml"
     ```
-2. Symlink the ruby script to a place in path
+* Symlink the ruby script to a place in path
     ```bash
     ln -s "/Users/username/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfn-launcher
     ```
-3. Add cloned repo path to environment path
+* Add cloned repo path to environment path
     ```bash
     PATH="/Users/username/cfn-launcher:$PATH"
     ```

@@ -15,17 +15,17 @@ usage: $0 -c ./config.yml
 -c YAML Config File  :  (Required)
 
 YAML FILE FORMAT:
-stackname: My Stack
+stackname: My Bastion Stack
 profilename: my_aws_cli_profile
-templateurl: https://s3.amazonaws.com/federated-jenkins-launcher/cloudformation-templates/federated-jenkins-horizontal-dev.template
-templatelocal: /Users/gsm987/Development/github/capone/federated_jenkins_launcher/cloudformation_templates/core_templates/federated-jenkins-core-ec2master-ecsworkers.template
-parametersfilepath: ${HOME}/Development/github/capone/federated_jenkins_launcher/cloudformation_templates/parameter_examples/horizontal-dev.json
-iamaccess: false
+templateurl: https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/github/bastion.template
+templatelocal: ../cloudformation/templates/bastion.template # Not used because uses3template = true
+parametersfilepath: ../cloudformation/parameters/bonusbits-prd-bastion.json
+iamaccess: true
 createstack: true
-deletecreatefailures: true
-uses3template: false
-logfile: ${HOME}/Development/github/capone/federated_jenkins_launcher/cfn_launcher_script/cfn-launcher.log
-verbose: false
+deletecreatefailures: false
+uses3template: true
+logfile: /var/log/cfn_launcher/cfn-launcher.log
+verbose: true
 "
     echo ${usagemessage};
 }
