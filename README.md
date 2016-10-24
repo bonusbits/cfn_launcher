@@ -1,5 +1,4 @@
 # CloudFormation Launcher (CFNL) BASH Script
-### !! WIP !!
 
 ## Purpose
 Used to launch CloudFormation Template from command line using AWS CLI commands.
@@ -37,7 +36,6 @@ This has been test
     templatelocal: ../cloudformation/templates/bastion.template # Not used because uses3template = true
     parametersfilepath: ../cloudformation/parameters/bonusbits-prd-bastion.json
     iamaccess: true
-    createstack: true
     deletecreatefailures: false
     uses3template: true
     logfile: /var/log/cfn_launcher/cfn-launcher.log
@@ -181,8 +179,12 @@ Here are some examples that can be used to allow access to the cfn-launcher scri
 Any one of a combo of these options can make it simple to fire off without much effort.
 * Create alias
     ```bash
+    # Short Name for Script
     alias cfnl="/Users/username/cfn_launcher/cfn-launcher.sh"
-    alias cfnl-bbprd-bastion-create="cfnl -c $HOME/cloudformation/cfnl_configs/create-bonusbits-prd-bastion.yml"
+    # Create Stack
+    alias cfnl-bbprd-bastion-create="cfnl -c $HOME/cloudformation/cfnl_configs/bonusbits-prd-bastion.yml"
+    # Update Stack
+    alias cfnl-bbprd-bastion-create="cfnl -u -c $HOME/cloudformation/cfnl_configs/bonusbits-prd-bastion.yml"
     ```
 * Symlink the ruby script to a place in path
     ```bash

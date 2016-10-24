@@ -1,6 +1,10 @@
 ##CHANGE LOG
 ---
 
+##1.2.0 - 10/24/2016 - Stable - Levon Becker
+* Removed createstack property and made create stack default with -u switch to trigger update
+* Fixed usage message
+
 ##1.1.4 - 10/24/2016 - Stable - Levon Becker
 * Fixed loop to work correctly with UPDATE_COMPLETE_CLEANUP_IN_PROGRESS status
 * Fixed a couple strings that needed to be interpreted for console action status

@@ -4,7 +4,6 @@ templateurl: https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/
 templatelocal: ../cloudformation/templates/bastion.template # Not used because uses3template = true
 parametersfilepath: ../cloudformation/parameters/bonusbits-prd-bastion.json
 iamaccess: true
-createstack: true
 deletecreatefailures: false
 uses3template: true
 logfile: /var/log/cfn_launcher/cfn-launcher.log

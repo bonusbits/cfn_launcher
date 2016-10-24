@@ -4,13 +4,13 @@
 
 # Static Variables
 successful=false
-script_version=1.1.4-20161024
+script_version=1.2.0-20161024
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
 function usage() {
 usagemessage="
-usage: $0 -c ./config.yml
+usage: $0 [-u] -c ./config_file.yml
 
 -c YAML Config File  :  (Required)
 
@@ -21,32 +21,33 @@ templateurl: https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/
 templatelocal: ../cloudformation/templates/bastion.template # Not used because uses3template = true
 parametersfilepath: ../cloudformation/parameters/bonusbits-prd-bastion.json
 iamaccess: true
-createstack: true
 deletecreatefailures: false
 uses3template: true
 logfile: /var/log/cfn_launcher/cfn-launcher.log
 verbose: true
 "
-    echo ${usagemessage};
+    echo "$usagemessage";
 }
 
-while [ "$1" != "" ]; do
- case $1 in
-   -c | --config-file ) shift
-     config_file_path=$1
-     ;;
-   * )
-     message "$1 is not a valid parameter"
-     usage
-     exit 1
- esac
- shift
+while getopts "c:uh" opts; do
+    case $opts in
+        c ) config_file_path=$OPTARG;;
+        u ) update=true;;
+        h ) usage; exit 0;;
+    esac
 done
 
 if [[ ${config_file_path} == "" ]]; then
  echo 'A yaml file is required!'
  usage
  exit 1
+fi
+
+# Set Task Type
+if [ ${update} == 'true' ]; then
+    task_type=update-stack
+else
+    task_type=create-stack
 fi
 
 function parse_yaml() {
@@ -132,13 +133,6 @@ function run_stack_command {
       capability_iam=" --capabilities CAPABILITY_IAM"
     else
       capability_iam=" "
-    fi
-
-    # Set Task Type
-    if [ ${yaml_createstack} == "true" ]; then
-      task_type=create-stack
-    else
-      task_type=update-stack
     fi
 
     show_header
