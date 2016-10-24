@@ -14,7 +14,7 @@ helpmessage="
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 -----------------------------------------------------------------------------------------------------------------------
 AUTHOR:       Levon Becker
-PURPOSE:      Create or Update CloudFormtion Stack with CloudFormation Template.
+PURPOSE:      Create or Update CloudFormation Stack with CloudFormation Template.
 VERSION:      $script_version
 DESCRIPTION:  This script uses the AWS CLI and BASH to create or update a CloudFormation Stack.
               It uses the AWS CLI to push the CloudFormation Template to AWS.
