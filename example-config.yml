@@ -7,5 +7,5 @@ iamaccess: true
 createstack: true
 deletecreatefailures: false
 uses3template: true
-logfile: /var/log/cfn_launcher/cfn_launcher.log
+logfile: /var/log/cfn_launcher/cfn-launcher.log
 verbose: true

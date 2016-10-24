@@ -48,17 +48,17 @@ This has been test
 1. Open Terminal
 2. Change to this directory
     ```bash
-    cd /path/to/clone/cfn_launcher/
+    cd /path/to/clone/cfn-launcher/
     ```
 3. Run script and point to a config yaml file
     ```bash
-    ./cfn_launcher.sh -p ./my-config.yml
+    ./cfn-launcher.sh -p ./my-config.yml
     ```
     
 ### Output Examples
 
 ```bash
-./cfn_launcher.sh -p ../cloudformation/cfnl_configs/bonusbits-prd-bastion.yml
+./cfn-launcher.sh -p ../cloudformation/cfnl_configs/bonusbits-prd-bastion.yml
 ```
 
 #### Success
@@ -76,7 +76,7 @@ This has been test
     PARAMETERS FILE:  ./bonusbits-prd-bastion.json
     ENABLE IAM:       true
     TASK TYPE:        create-stack
-    LOG FILE:         /var/log/cfn_launcher/cfn_launcher.log
+    LOG FILE:         /var/log/cfn-launcher/cfn-launcher.log
     VERBOSE:          true
     -----------------------------------------------------------------------------------------------------------------------
     
@@ -128,7 +128,7 @@ This has been test
     PARAMETERS FILE:  ./bonusbits-prd-bastion.json
     ENABLE IAM:       true
     TASK TYPE:        create-stack
-    LOG FILE:         /var/log/cfn_launcher/cfn_launcher.log
+    LOG FILE:         /var/log/cfn-launcher/cfn-launcher.log
     VERBOSE:          true
     -----------------------------------------------------------------------------------------------------------------------
     
@@ -175,6 +175,21 @@ This has been test
     [2016-10-20_10:08:15] RUNTIME: 2 minutes
     
     [2016-10-20_10:08:16] ERROR: FAILED!
+
+## Access Options
+1. Create alias
+    ```bash
+    alias cfn-converter="/Users/username/cfn_converter/cfn-converter.rb"
+    ```
+2. Symlink the ruby script to a place in path
+    ```bash
+    ln -s "/Users/username/cfn_converter/cfn-converter.rb" /usr/local/bin/cfn-converter
+    ```
+3. Add cloned repo path to environment path
+    ```bash
+    PATH="/Users/username/cfn_converter:$PATH"
+    ```
+    
 
 ## Troubleshooting
 * Can not use underscores of hyphens in yaml properties file key names.

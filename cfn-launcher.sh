@@ -24,7 +24,7 @@ iamaccess: false
 createstack: true
 deletecreatefailures: true
 uses3template: false
-logfile: ${HOME}/Development/github/capone/federated_jenkins_launcher/cfn_launcher_script/cfn_launcher.log
+logfile: ${HOME}/Development/github/capone/federated_jenkins_launcher/cfn_launcher_script/cfn-launcher.log
 verbose: false
 "
     echo ${usagemessage};
