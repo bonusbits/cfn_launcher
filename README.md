@@ -24,7 +24,7 @@ This has been test
 ### Download Repo Locally
 1. Open Terminal
 2. Pull down this git repository locally
-    1. ```git clone https://github.com/bonusbits/cloudformation_templates.git /path/to/clone/```
+    1. ```git clone https://github.com/bonusbits/cfn_launcher.git /path/to/clone/```
 
 ### CFNL Config
 1. Create new YAML file with the same content of one of the example configs
@@ -52,13 +52,13 @@ This has been test
     ```
 3. Run script and point to a config yaml file
     ```bash
-    ./cfn-launcher.sh -p ./my-config.yml
+    ./cfn-launcher.sh -c ./my-config.yml
     ```
     
 ### Output Examples
 
 ```bash
-./cfn-launcher.sh -p ../cloudformation/cfnl_configs/bonusbits-prd-bastion.yml
+./cfn-launcher.sh -c ../cloudformation/cfnl_configs/bonusbits-prd-bastion.yml
 ```
 
 #### Success
@@ -176,14 +176,15 @@ This has been test
     
     [2016-10-20_10:08:16] ERROR: FAILED!
 
-## Access Options
+## Example Pathing Access Options
 1. Create alias
     ```bash
-    alias cfn-converter="/Users/username/cfn_converter/cfn-launcher.rb"
+    alias cfnl="/Users/username/cfn_launcher/cfn-launcher.sh"
+    alias cfnl-bbprd-bastion-create="cfnl -c $HOME/cloudformation/cfnl_configs/create-bonusbits-prd-bastion.yml"
     ```
 2. Symlink the ruby script to a place in path
     ```bash
-    ln -s "/Users/username/cfn_converter/cfn-launcher.rb" /usr/local/bin/cfn-launcher
+    ln -s "/Users/username/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfn-launcher
     ```
 3. Add cloned repo path to environment path
     ```bash

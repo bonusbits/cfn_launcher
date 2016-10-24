@@ -4,15 +4,15 @@
 
 # Static Variables
 successful=false
-script_version=1.1.1_10-20-2016
+script_version=1.1.3_10-24-2016
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
 function usage() {
 usagemessage="
-usage: $0 -p ./example-config.yml
+usage: $0 -c ./config.yml
 
--p YAML Properties File  :  (Required)
+-c YAML Config File  :  (Required)
 
 YAML FILE FORMAT:
 stackname: My Stack
@@ -32,8 +32,8 @@ verbose: false
 
 while [ "$1" != "" ]; do
  case $1 in
-   -p | --properties-file ) shift
-     properties_file_path=$1
+   -c | --config-file ) shift
+     config_file_path=$1
      ;;
    * )
      message "$1 is not a valid parameter"
@@ -43,7 +43,7 @@ while [ "$1" != "" ]; do
  shift
 done
 
-if [[ ${properties_file_path} == "" ]]; then
+if [[ ${config_file_path} == "" ]]; then
  echo 'A yaml file is required!'
  usage
  exit 1
@@ -101,7 +101,7 @@ LOG FILE:         $yaml_logfile
 VERBOSE:          $yaml_verbose
 -----------------------------------------------------------------------------------------------------------------------
   "
-	echo "$HEADER" | tee -a ${log_file};
+	echo "$HEADER" | tee -a ${yaml_logfile};
 }
 
 function exit_check {
@@ -253,7 +253,7 @@ function monitor_stack_status {
 #validate_args
 start_time=$(date +%s)
 # Read Yaml Properties File
-eval $(parse_yaml ${properties_file_path} "yaml_")
+eval $(parse_yaml ${config_file_path} "yaml_")
 #set | grep yaml_
 run_stack_command
 monitor_stack_status

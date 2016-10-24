@@ -1,7 +1,16 @@
 ##CHANGE LOG
 ---
 
-##1.1.1 - 10/20/2016 - Stable - Levon Becker
+##1.1.3 - 10/24/2016 - Levon Becker
+* Changed argument switch to -c for config instead of -p for properties
+* Updated Readme
+* Created a create and update example config and moved to own directory
+
+##1.1.2 - 10/24/2016 - Levon Becker
+* Fixed Header Logging to file
+* Change binary name to hyphen instead of underscore
+
+##1.1.1 - 10/20/2016 - Levon Becker
 * Added verbose option to get create complete outputs on fail so can track what worked and where it failed.
 
 ##1.1.0 - 10/18/2016 - Stable - Levon Becker
