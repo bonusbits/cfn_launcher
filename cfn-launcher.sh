@@ -4,19 +4,24 @@
 
 # Static Variables
 successful=false
-script_version=1.2.0-20161024
+script_version=1.2.1-20161024
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
-function usage() {
-usagemessage="
-usage: $0 [-u] -c ./config_file.yml
-
--c Config File           :  YAML Script Config File Full Path (Required)
--u Update Stack          :  Triggers Update Operation (Default is Create Stack)
--h Help                  :  Displays Help Information
-
-YAML FILE FORMAT:
+function help_message () {
+helpmessage="
+-----------------------------------------------------------------------------------------------------------------------
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+-----------------------------------------------------------------------------------------------------------------------
+AUTHOR:       Levon Becker
+PURPOSE:      Create or Update CloudFormtion Stack with CloudFormation Template.
+VERSION:      $script_version
+DESCRIPTION:  This script uses the AWS CLI and BASH to create or update a CloudFormation Stack.
+              It uses the AWS CLI to push the CloudFormation Template to AWS.
+              Then loops over and over checking status of the stack.
+-----------------------------------------------------------------------------------------------------------------------
+YAML FILE FORMAT EXAMPLE
+-----------------------------------------------------------------------------------------------------------------------
 stackname: My Bastion Stack
 profilename: my_aws_cli_profile
 templateurl: https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/github/bastion.template
@@ -27,6 +32,25 @@ deletecreatefailures: false
 uses3template: true
 logfile: /var/log/cfn_launcher/cfn-launcher.log
 verbose: true
+-----------------------------------------------------------------------------------------------------------------------
+EXAMPLES
+-----------------------------------------------------------------------------------------------------------------------
+Create Stack
+$0 -c /path/to/script/configs/bonusbits-prd-bastion.yml
+
+Update Stack
+$0 -u -c /path/to/script/configs/bonusbits-prd-bastion.yml
+"
+    echo "$helpmessage";
+}
+
+function usage() {
+usagemessage="
+usage: $0 [-u] -c ./config_file.yml
+
+-c Config File           :  YAML Script Config File Full Path (Required)
+-u Update Stack          :  Triggers Update Operation (Default is Create Stack)
+-h Help                  :  Displays Help Information
 "
     echo "$usagemessage";
 }
@@ -35,14 +59,14 @@ while getopts "c:uh" opts; do
     case $opts in
         c ) config_file_path=$OPTARG;;
         u ) update=true;;
-        h ) usage; exit 0;;
+        h ) help_message; exit 0;;
     esac
 done
 
 if [[ ${config_file_path} == "" ]]; then
- echo 'A yaml file is required!'
- usage
- exit 1
+    usage
+    echo 'ERROR: A YAML Config File is Required!'
+    exit 1
 fi
 
 # Set Task Type

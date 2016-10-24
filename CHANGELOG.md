@@ -1,6 +1,9 @@
 ##CHANGE LOG
 ---
 
+##1.2.1 - 10/24/2016 - Stable - Levon Becker
+* Added Help Message
+
 ##1.2.0 - 10/24/2016 - Stable - Levon Becker
 * Removed createstack property and made create stack default with -u switch to trigger update
 * Fixed usage message
