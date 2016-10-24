@@ -40,7 +40,7 @@ This has been test
     createstack: true
     deletecreatefailures: false
     uses3template: true
-    logfile: /var/log/cfn_launcher/cfn_launcher.log
+    logfile: /var/log/cfn_launcher/cfn-launcher.log
     verbose: true
     ```
     
@@ -179,15 +179,15 @@ This has been test
 ## Access Options
 1. Create alias
     ```bash
-    alias cfn-converter="/Users/username/cfn_converter/cfn-converter.rb"
+    alias cfn-converter="/Users/username/cfn_converter/cfn-launcher.rb"
     ```
 2. Symlink the ruby script to a place in path
     ```bash
-    ln -s "/Users/username/cfn_converter/cfn-converter.rb" /usr/local/bin/cfn-converter
+    ln -s "/Users/username/cfn_converter/cfn-launcher.rb" /usr/local/bin/cfn-launcher
     ```
 3. Add cloned repo path to environment path
     ```bash
-    PATH="/Users/username/cfn_converter:$PATH"
+    PATH="/Users/username/cfn-launcher:$PATH"
     ```
     
 
