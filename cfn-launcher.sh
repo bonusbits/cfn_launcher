@@ -22,24 +22,24 @@ DESCRIPTION:  This script uses the AWS CLI and BASH to create or update a CloudF
 -----------------------------------------------------------------------------------------------------------------------
 YAML FILE FORMAT EXAMPLE
 -----------------------------------------------------------------------------------------------------------------------
-stackname: My Bastion Stack
-profilename: my_aws_cli_profile
-templateurl: https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/github/bastion.template
-templatelocal: ../cloudformation/templates/bastion.template # Not used because uses3template = true
-parametersfilepath: ../cloudformation/parameters/bonusbits-prd-bastion.json
+stackname: awsaccount1-env-stack1
+profilename: awsaccount1
+templateurl: https://s3.amazonaws.com/cfn-bucket/stack1-template.yml
+templatelocal: /path/to/cfnl_configs/stack1-template.yml # Not used because uses3template = true
+parametersfilepath: /path/to/template/parameters/awsaccount1-env-stack1-parameters.json
 iamaccess: true
 deletecreatefailures: false
 uses3template: true
-logfile: /var/log/cfn_launcher/cfn-launcher.log
+logfile: /path/to/where/you/want/logs/cfnl.log
 verbose: true
 -----------------------------------------------------------------------------------------------------------------------
 EXAMPLES
 -----------------------------------------------------------------------------------------------------------------------
 Create Stack
-$0 -c /path/to/script/configs/bonusbits-prd-bastion.yml
+$0 -c /path/to/cfnl/configs/awsaccount1-env-stack1-cfnlconfig.yml
 
 Update Stack
-$0 -u -c /path/to/script/configs/bonusbits-prd-bastion.yml
+$0 -u -c /path/to/cfnl/configs/awsaccount1-env-stack1-cfnlconfig.yml
 "
     echo "$helpmessage";
 }

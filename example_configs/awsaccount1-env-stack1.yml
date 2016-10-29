@@ -1,0 +1,10 @@
+stackname: awsaccount1-env-stack1
+profilename: awsaccount1
+templateurl: https://s3.amazonaws.com/cfn-bucket/stack1-template.yml
+templatelocal: /path/to/cfnl_configs/stack1-template.yml # Not used because uses3template = true
+parametersfilepath: /path/to/template/parameters/awsaccount1-env-stack1-parameters.json
+iamaccess: true
+deletecreatefailures: false
+uses3template: true
+logfile: /path/to/where/you/want/logs/cfnl.log
+verbose: true
