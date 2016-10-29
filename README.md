@@ -82,6 +82,7 @@ Any one of a combo of these options can make it simple to fire off without much 
     alias cfnl-update-stack1-uswest1="cfnl -u -c /path/to/cfnl_configs/stack1-uswest1.yml"
     alias cfnl-update-stack2-uswest1="cfnl -u -c /path/to/cfnl_configs/stack2-uswest1.yml"
     ```
+    
 The reason I show with a region suffix on the example configurations is because the cfnl config points to your CloudFormation Parameters that probably has region specifics. 
  Such as, VPC, Subnets, Security Groups, Access Keys, etc.
     
