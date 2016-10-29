@@ -26,7 +26,9 @@ This has been test
 ### CFNL Config
 1. Create new YAML file with the same content of one of the example configs
 2. Replace values with custom values as desired
-    <br>**Example**<br>
+    
+    **Example**
+    
     ```yaml
     stackname: awsaccount-env-stack
     profilename: awsaccount
@@ -44,11 +46,11 @@ This has been test
     
 ### Run CFNL
 1. Open Terminal
-2. Change to this directory
+2. Change to this directory<br>
     ```bash
     cd /path/to/clone/cfn-launcher/
     ```
-3. Run script and point to a config yaml file
+3. Run script and point to a config yaml file<br>
     # Create Stack
     ```bash
     /path/to/cfn_launcher/cfn-launcher.sh -c /path/to/cfnl_configs/my-launcher-config.yml
