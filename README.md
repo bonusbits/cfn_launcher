@@ -69,7 +69,7 @@ This has been test
 Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
 Any one of a combo of these options can make it simple to fire off without much effort.
 
-1. Symlink the ruby script to a place in path
+1. Symlink the shell script to a place in path
 
     ```bash
      if [ ! -h "/usr/local/bin/cfnl" ]; then
