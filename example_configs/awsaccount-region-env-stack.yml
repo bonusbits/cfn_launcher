@@ -1,7 +1,7 @@
 stackname: awsaccount-env-stack
 profilename: awsaccount
 templateurl: https://s3.amazonaws.com/cfn-bucket/stack-template.yml
-templatelocal: /path/to/cfnl_configs/stack1-template.yml # Not used because uses3template = true
+templatelocal: /path/to/cloudformation/templates/stack1-template.yml # Not used because uses3template = true
 parametersfilepath: /path/to/template/parameters/awsaccount-region-env-stack-parameters.json
 iamaccess: true
 deletecreatefailures: false
