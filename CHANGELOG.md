@@ -1,6 +1,14 @@
 ##CHANGE LOG
 ---
 
+##1.2.4 - 10/27/2016 - Stable - Levon Becker
+* Added timeout count option for yaml config
+* Fixed indents to 4 spaces
+* Moved some of the loop logic to functions to reduce complexity
+
+##1.2.3 - 10/26/2016 - Stable - Levon Becker
+* Fixed some conditions to be posix compliant
+
 ##1.2.1 - 10/24/2016 - Stable - Levon Becker
 * Added Help Message
 

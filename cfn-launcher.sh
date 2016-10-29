@@ -4,7 +4,7 @@
 
 # Static Variables
 successful=false
-script_version=1.2.1-20161024
+script_version=1.2.4-20161027
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
@@ -25,13 +25,15 @@ YAML FILE FORMAT EXAMPLE
 stackname: My Bastion Stack
 profilename: my_aws_cli_profile
 templateurl: https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/github/bastion.template
-templatelocal: ../cloudformation/templates/bastion.template # Not used because uses3template = true
-parametersfilepath: ../cloudformation/parameters/bonusbits-prd-bastion.json
+templatelocal: $HOME/cloudformation/templates/bastion.template # Not used because uses3template = true
+parametersfilepath: $HOME/cloudformation/parameters/bonusbits-prd-bastion.json
 iamaccess: true
 deletecreatefailures: false
 uses3template: true
-logfile: /var/log/cfn_launcher/cfn-launcher.log
+logfile: $HOME/cloudformation/logs/cfn-launcher.log
 verbose: true
+waittime: 5
+maxwaits: 180
 -----------------------------------------------------------------------------------------------------------------------
 EXAMPLES
 -----------------------------------------------------------------------------------------------------------------------
@@ -63,14 +65,14 @@ while getopts "c:uh" opts; do
     esac
 done
 
-if [[ ${config_file_path} == "" ]]; then
-    usage
-    echo 'ERROR: A YAML Config File is Required!'
-    exit 1
+if [ "$config_file_path" == "" ]; then
+usage
+echo 'ERROR: A YAML Config File is Required!'
+exit 1
 fi
 
 # Set Task Type
-if [ ${update} == 'true' ]; then
+if [ "$update" == "true" ]; then
     task_type=update-stack
 else
     task_type=create-stack
@@ -93,23 +95,23 @@ function parse_yaml() {
 }
 
 function message() {
-  DATETIME=$(date +%Y-%m-%d_%H:%M:%S)
-  echo "[$DATETIME] $*" | tee -a ${yaml_logfile}
+    DATETIME=$(date +%Y-%m-%d_%H:%M:%S)
+    echo "[$DATETIME] $*" | tee -a ${yaml_logfile}
 }
 # TODO: Combine these two functions and use arg to switch modes
 function message_nofile() {
-  DATETIME=$(date +%Y-%m-%d_%H:%M:%S)
-  echo "[$DATETIME] $*"
+    DATETIME=$(date +%Y-%m-%d_%H:%M:%S)
+    echo "[$DATETIME] $*"
 }
 
 function show_header {
-  if [ ${yaml_uses3template} == "true" ]; then
-    TEMPLATE=${yaml_templateurl}
-  else
-    TEMPLATE=${yaml_templatelocal}
-  fi
+    if [ "$yaml_uses3template" == "true" ]; then
+        TEMPLATE=${yaml_templateurl}
+    else
+        TEMPLATE=${yaml_templatelocal}
+    fi
 
-  HEADER="
+    HEADER="
 -----------------------------------------------------------------------------------------------------------------------
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 -----------------------------------------------------------------------------------------------------------------------
@@ -118,15 +120,17 @@ $script_version
 -----------------------------------------------------------------------------------------------------------------------
 PARAMETERS
 -----------------------------------------------------------------------------------------------------------------------
-STACK NAME:       $yaml_stackname
-PROFILE:          $yaml_profilename
-TEMPLATE:         $TEMPLATE
-PARAMETERS FILE:  $yaml_parametersfilepath
-ENABLE IAM:       $yaml_iamaccess
-TASK TYPE:        $task_type
-LOG FILE:         $yaml_logfile
-VERBOSE:          $yaml_verbose
-LAUNCHER CONFIG:  $config_file_path
+STACK NAME:        $yaml_stackname
+PROFILE:           $yaml_profilename
+TEMPLATE:          $TEMPLATE
+PARAMETERS FILE:   $yaml_parametersfilepath
+ENABLE IAM:        $yaml_iamaccess
+TASK TYPE:         $task_type
+LOG FILE:          $yaml_logfile
+VERBOSE:           $yaml_verbose
+LAUNCHER CONFIG:   $config_file_path
+WAIT TIME (Sec):   $yaml_waittime
+MAX WAITS (Loops): $yaml_maxwaits
 -----------------------------------------------------------------------------------------------------------------------
   "
 	echo "$HEADER" | tee -a ${yaml_logfile};
@@ -135,9 +139,9 @@ LAUNCHER CONFIG:  $config_file_path
 function exit_check {
 	if [ $1 -eq 0 ]
 	then
-		message "REPORT: Success $2" | tee -a ${yaml_logfile}
+		message "REPORT: Successfully $2" | tee -a ${yaml_logfile}
 	else
-		message "ERROR: Exit Code $1 for $2" | tee -a ${yaml_logfile}
+		message "ERROR:  Exit Code $1 for $2" | tee -a ${yaml_logfile}
 		exit $1
 	fi
 }
@@ -145,25 +149,25 @@ function exit_check {
 function exit_check_nolog {
 	if [ $1 -eq 0 ]
 	then
-		message_nofile "REPORT: Success $2"
+		message_nofile "REPORT: Successfully $2"
 	else
-		message_nofile "ERROR: Exit Code $1 for $2"
+		message_nofile "ERROR:  Exit Code $1 for $2"
 		exit $1
 	fi
 }
 
 function run_stack_command {
     # Determine if IAM Capabilities are Required
-    if [ ${yaml_iamaccess} == "true" ]
+    if [ "$yaml_iamaccess" == "true" ]
     then
-      capability_iam=" --capabilities CAPABILITY_IAM"
+        capability_iam=" --capabilities CAPABILITY_IAM"
     else
-      capability_iam=" "
+        capability_iam=" "
     fi
 
     show_header
 
-    if [ ${yaml_uses3template} == "true" ]; then
+    if [ "$yaml_uses3template" == "true" ]; then
         aws cloudformation ${task_type} --profile ${yaml_profilename} \
                                         --stack-name ${yaml_stackname}${capability_iam} \
                                         --template-url "${yaml_templateurl}"  \
@@ -174,106 +178,113 @@ function run_stack_command {
                                         --template-body file://${yaml_templatelocal}  \
                                         --parameters file://${yaml_parametersfilepath}
     fi
-    exit_check $? "Started Stack Command"
+    exit_check $? "Executed ${ACTION} Stack Command"
+    message ''
 }
 
 function delete_stack_command {
-  message 'ACTION: Deleting Stack'
-  aws cloudformation delete-stack --profile ${yaml_profilename} --stack-name ${yaml_stackname}
-  exit_check $? "Deleting Stack Command"
+    message 'ACTION: Deleting Stack'
+    aws cloudformation delete-stack --profile ${yaml_profilename} --stack-name ${yaml_stackname}
+    exit_check $? "Executed Delete Stack Command"
+}
+
+function output_create_complete {
+    # If Verbose True then Output all the Create Complete Events for Debugging
+    if [ "$yaml_verbose" == "true" ]; then
+        aws cloudformation describe-stack-events --stack-name ${yaml_stackname} --query 'StackEvents[?ResourceStatus==`CREATE_COMPLETE`]' | tee -a ${yaml_logfile}
+        echo '' | tee -a ${yaml_logfile}
+    fi
+}
+
+function output_create_failed {
+    # Output all the Create Failed Events for Debugging
+    aws cloudformation describe-stack-events --stack-name ${yaml_stackname} --query 'StackEvents[?ResourceStatus==`CREATE_FAILED`]' | tee -a ${yaml_logfile}
 }
 
 function monitor_stack_status {
-  # Poll for Status
-  # wait_time 5, max_waits 180 = 15 minutes
+    # Poll for Status
+    # wait_time 5, max_waits 180 = 15 minutes
 
-  if [ ${task_type} == "create-stack" ]; then
-    ACTION=CREATE
-  elif [ ${task_type} == "update-stack" ]; then
-    ACTION=UPDATE
-  else
-    ACTION=CREATE
-  fi
-
-  wait_time=5
-  max_waits=180
-  count=1
-  delete_triggered=false
-  while :
-  do
-    STATUS=$(aws cloudformation describe-stacks --stack-name "$yaml_stackname" --output text --query 'Stacks[*].StackStatus')
-    exit_check $? "Loaded Status Check into Variable"
-    message "REPORT: Status (${STATUS})"
-
-    if [[ "$STATUS" == "${ACTION}_IN_PROGRESS" && ${count} -lt ${max_waits} ]]; then
-      message "REPORT: ${ACTION} stack is not complete!"
-      message "REPORT: Attempt $count of $max_waits."
-      message "REPORT: Polling again in ${wait_time} seconds..."
-      echo '' | tee -a ${yaml_logfile}
-      sleep ${wait_time}
-      count=$(( count + 1 ))
-    elif [ "$STATUS" == "${ACTION}_COMPLETE" ]; then
-      message "REPORT: ${ACTION} Completed!"
-      successful=true
-      break
-    elif [ "$STATUS" == "${ACTION}_FAILED" ]; then
-      message "ERROR: ${ACTION} Failed!"
-      successful=false
-    elif [ "$STATUS" == "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS" ]; then
-      message 'REPORT: Cleanup in Progress'
-      message "REPORT: Attempt $count of $max_waits."
-      message "REPORT: Polling again in ${wait_time} seconds..."
-      echo '' | tee -a ${yaml_logfile}
-      sleep ${wait_time}
-      count=$(( count + 1 ))
-    elif [ "$STATUS" == "ROLLBACK_IN_PROGRESS" ]; then
-      if [[ "$task_type" == "create-stack" && ${yaml_deletecreatefailures} == "true" ]]; then
-        message 'ERROR: Failed and Rolling Back!'
-        if [ ${yaml_verbose} == "true" ]; then
-#            aws cloudformation describe-stack-events --stack-name ${yaml_stackname}
-            aws cloudformation describe-stack-events --stack-name ${yaml_stackname} --query 'StackEvents[?ResourceStatus==`CREATE_COMPLETE`]'
-            echo '' | tee -a ${yaml_logfile}
-        fi
-        aws cloudformation describe-stack-events --stack-name ${yaml_stackname} --query 'StackEvents[?ResourceStatus==`CREATE_FAILED`]'
-        delete_stack_command
-        successful=false
-      else
-        # So don't delete on update-stack
-        if [ ${yaml_verbose} == "true" ]; then
-#            aws cloudformation describe-stack-events --stack-name ${yaml_stackname}
-           aws cloudformation describe-stack-events --stack-name ${yaml_stackname} --query 'StackEvents[?ResourceStatus==`CREATE_COMPLETE`]'
-            echo '' | tee -a ${yaml_logfile}
-        fi
-        aws cloudformation describe-stack-events --stack-name ${yaml_stackname} --query 'StackEvents[?ResourceStatus==`CREATE_FAILED`]'
-        message 'ERROR: Failed and Rolling Back!'
-        message "REPORT: Rollback not complete!"
-        message "REPORT: Attempt $count of $max_waits."
-        message "Polling again in ${wait_time} seconds..."
-        echo '' | tee -a ${yaml_logfile}
-        sleep $wait_time
-        count=$(( count + 1 ))
-        successful=false
-      fi
-    elif [ ${STATUS} == "DELETE_IN_PROGRESS" ]; then
-      message "REPORT: Delete not complete!"
-      message "REPORT: Attempt ${count} of ${max_waits}."
-      message "Polling again in ${wait_time} seconds..."
-      echo '' | tee -a ${yaml_logfile}
-      sleep ${wait_time}
-      count=$(( count + 1 ))
-      successful=false
-      break
-    elif [ ${STATUS} == "ROLLBACK_COMPLETE" ]; then
-      message "REPORT: Rollback complete!"
-      echo '' | tee -a ${yaml_logfile}
-      successful=false
-      break
+    if [ "$task_type" == "create-stack" ]; then
+        ACTION=CREATE
+    elif [ "$task_type" == "update-stack" ]; then
+        ACTION=UPDATE
     else
-      message 'ERROR: The stack has not create or update has failed.'
-      successful=false
-      break
+        ACTION=CREATE
     fi
-  done
+
+    wait_time=${yaml_waittime}
+    max_waits=${yaml_maxwaits}
+    count=1
+    delete_triggered=false
+    while :
+    do
+        STATUS=$(aws cloudformation describe-stacks --stack-name "$yaml_stackname" --output text --query 'Stacks[*].StackStatus')
+        exit_check $? "Executing Status Check"
+        message "REPORT: Status (${STATUS})"
+
+        if [[ "$STATUS" == "${ACTION}_IN_PROGRESS" && ${count} -lt ${max_waits} ]]; then
+            message "REPORT: ${ACTION} stack is not complete!"
+            message "REPORT: Attempt $count of $max_waits."
+            message "REPORT: Polling again in ${wait_time} seconds..."
+            echo '' | tee -a ${yaml_logfile}
+            sleep ${wait_time}
+            count=$(( count + 1 ))
+        elif [ "$STATUS" == "${ACTION}_COMPLETE" ]; then
+            message "REPORT: ${ACTION} Completed!"
+            successful=true
+            break
+        elif [ "$STATUS" == "${ACTION}_FAILED" ]; then
+            message "ERROR:  ${ACTION} Failed!"
+            successful=false
+        elif [ "$STATUS" == "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS" ]; then
+            message 'REPORT: Cleanup in Progress'
+            message "REPORT: Attempt $count of $max_waits."
+            message "REPORT: Polling again in ${wait_time} seconds..."
+            echo '' | tee -a ${yaml_logfile}
+            sleep ${wait_time}
+            count=$(( count + 1 ))
+        elif [ "$STATUS" == "ROLLBACK_IN_PROGRESS" ]; then
+            # If Delete Stack on failures when Creating is True then Delete the Stack after grabbing Events
+            if [[ "$task_type" == "create-stack" && "$yaml_deletecreatefailures" == "true" ]]; then
+                message 'ERROR:  Failed and Rolling Back!'
+                output_create_complete
+                output_create_failed
+                delete_stack_command
+                successful=false
+            # Else Fetch Events, but do not Delete the Stack
+            else
+                output_create_complete
+                output_create_failed
+                message 'ERROR:  Failed and Rolling Back!'
+                message "REPORT: Rollback not complete!"
+                message "REPORT: Attempt $count of $max_waits."
+                message "Polling again in ${wait_time} seconds..."
+                echo '' | tee -a ${yaml_logfile}
+                sleep $wait_time
+                count=$(( count + 1 ))
+                successful=false
+            fi
+        elif [ "$STATUS" == "DELETE_IN_PROGRESS" ]; then
+            message "REPORT: Delete not complete!"
+            message "REPORT: Attempt ${count} of ${max_waits}."
+            message "Polling again in ${wait_time} seconds..."
+            echo '' | tee -a ${yaml_logfile}
+            sleep ${wait_time}
+            count=$(( count + 1 ))
+            successful=false
+            break
+        elif [ "$STATUS" == "ROLLBACK_COMPLETE" ]; then
+            message "REPORT: Rollback complete!"
+            echo '' | tee -a ${yaml_logfile}
+            successful=false
+            break
+        else
+            message 'ERROR: The stack has not create or update has failed.'
+            successful=false
+            break
+        fi
+    done
 }
 
 # Start

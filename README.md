@@ -18,8 +18,6 @@ This has been test
 * AWS CLI installed and configured
 
 ## Usage
-**!! Incomplete !!**
-
 ### Download Repo Locally
 1. Open Terminal
 2. Pull down this git repository locally
@@ -40,6 +38,8 @@ This has been test
     uses3template: true
     logfile: /var/log/cfn_launcher/cfn-launcher.log
     verbose: true
+    waittime: 5
+    maxwaits: 180
     ```
     
 ### Run CFNL
@@ -49,14 +49,44 @@ This has been test
     cd /path/to/clone/cfn-launcher/
     ```
 3. Run script and point to a config yaml file
+    # Create Stack
     ```bash
-    ./cfn-launcher.sh -c ./my-config.yml
+    /path/to/cfn_launcher/cfn-launcher.sh -c /path/to/cfnl_configs/my-launcher-config.yml
+    # If created alias or symlink
+    cfnl -c /path/to/cfnl_configs/my-launcher-config.yml
     ```
+    # Update Stack
+    ```bash
+    /path/to/cfn_launcher/cfn-launcher.sh -u -c /path/to/cfnl_configs/my-launcher-config.yml
+    # If created alias or symlink
+    cfnl -u -c /path/to/cfnl_configs/my-launcher-config.yml
+    ```
+
+## Example Pathing Access Options
+Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
+Any one of a combo of these options can make it simple to fire off without much effort.
+1. Symlink the ruby script to a place in path
+    ```bash
+     if [ ! -h "/usr/local/bin/cfnl" ]; then
+       ln -s "/path/to/clone/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfnl
+     fi
+    ```
+2. Create aliases for stacks configs
+    ```bash
+    # Create Stack
+    alias cfnl-create-stack1-uswest1="cfnl -c /path/to/cfnl_configs/stack1-uswest1.yml"
+    alias cfnl-create-stack2-uswest1="cfnl -c /path/to/cfnl_configs/stack2-uswest1.yml"
+    # Update Stack
+    alias cfnl-update-stack1-uswest1="cfnl -u -c /path/to/cfnl_configs/stack1-uswest1.yml"
+    alias cfnl-update-stack2-uswest1="cfnl -u -c /path/to/cfnl_configs/stack2-uswest1.yml"
+    ```
+The reason I show with a region suffix on the example configurations is because the cfnl config points to your CloudFormation Parameters that probably has region specifics. 
+ Such as, VPC, Subnets, Security Groups, Access Keys, etc.
     
 ### Output Examples
 
 ```bash
-./cfn-launcher.sh -c ../cloudformation/cfnl_configs/bonusbits-prd-bastion.yml
+./cfn-launcher.sh -c ../cloudformation/cfnl_configs/bonusbits-prd-bastion-uswest1.yml
 ```
 
 #### Success
@@ -173,27 +203,6 @@ This has been test
     [2016-10-20_10:08:15] RUNTIME: 2 minutes
     
     [2016-10-20_10:08:16] ERROR: FAILED!
-
-## Example Pathing Access Options
-Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
-Any one of a combo of these options can make it simple to fire off without much effort.
-* Create alias
-    ```bash
-    # Short Name for Script
-    alias cfnl="/Users/username/cfn_launcher/cfn-launcher.sh"
-    # Create Stack
-    alias cfnl-bbprd-bastion-create="cfnl -c $HOME/cloudformation/cfnl_configs/bonusbits-prd-bastion.yml"
-    # Update Stack
-    alias cfnl-bbprd-bastion-create="cfnl -u -c $HOME/cloudformation/cfnl_configs/bonusbits-prd-bastion.yml"
-    ```
-* Symlink the ruby script to a place in path
-    ```bash
-    ln -s "/Users/username/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfn-launcher
-    ```
-* Add cloned repo path to environment path
-    ```bash
-    PATH="/Users/username/cfn-launcher:$PATH"
-    ```
 
 ## Troubleshooting
 * Can not use underscores of hyphens in yaml properties file key names.
