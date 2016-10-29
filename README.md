@@ -66,6 +66,7 @@ This has been test
 ## Example Pathing Access Options
 Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
 Any one of a combo of these options can make it simple to fire off without much effort.
+
 1. Symlink the ruby script to a place in path<br>
     ```bash
      if [ ! -h "/usr/local/bin/cfnl" ]; then
