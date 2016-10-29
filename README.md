@@ -51,14 +51,13 @@ This has been test
     cd /path/to/clone/cfn-launcher/
     ```
 3. Run script and point to a config yaml file<br>
-    # Create Stack
     ```bash
+    # Create Stack
     /path/to/cfn_launcher/cfn-launcher.sh -c /path/to/cfnl_configs/my-launcher-config.yml
     # If created alias or symlink
     cfnl -c /path/to/cfnl_configs/my-launcher-config.yml
-    ```
+ 
     # Update Stack
-    ```bash
     /path/to/cfn_launcher/cfn-launcher.sh -u -c /path/to/cfnl_configs/my-launcher-config.yml
     # If created alias or symlink
     cfnl -u -c /path/to/cfnl_configs/my-launcher-config.yml
@@ -67,13 +66,13 @@ This has been test
 ## Example Pathing Access Options
 Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
 Any one of a combo of these options can make it simple to fire off without much effort.
-1. Symlink the ruby script to a place in path
+1. Symlink the ruby script to a place in path<br>
     ```bash
      if [ ! -h "/usr/local/bin/cfnl" ]; then
        ln -s "/path/to/clone/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfnl
      fi
     ```
-2. Create aliases for stacks configs
+2. Create aliases for stacks configs<br>
     ```bash
     # Create Stack
     alias cfnl-create-stack1-uswest1="cfnl -c /path/to/cfnl_configs/stack1-uswest1.yml"
