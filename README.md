@@ -46,11 +46,13 @@ This has been test
     
 ### Run CFNL
 1. Open Terminal
-2. Change to this directory<br>
+2. Change to this directory
+
     ```bash
     cd /path/to/clone/cfn-launcher/
     ```
-3. Run script and point to a config yaml file<br>
+3. Run script and point to a config yaml file
+
     ```bash
     # Create Stack
     /path/to/cfn_launcher/cfn-launcher.sh -c /path/to/cfnl_configs/my-launcher-config.yml
@@ -67,13 +69,15 @@ This has been test
 Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
 Any one of a combo of these options can make it simple to fire off without much effort.
 
-1. Symlink the ruby script to a place in path<br>
+1. Symlink the ruby script to a place in path
+
     ```bash
      if [ ! -h "/usr/local/bin/cfnl" ]; then
        ln -s "/path/to/clone/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfnl
      fi
     ```
-2. Create aliases for stacks configs<br>
+2. Create aliases for stacks configs
+
     ```bash
     # Create Stack
     alias cfnl-create-stack1-uswest1="cfnl -c /path/to/cfnl_configs/stack1-uswest1.yml"
