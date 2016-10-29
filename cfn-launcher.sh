@@ -22,15 +22,15 @@ DESCRIPTION:  This script uses the AWS CLI and BASH to create or update a CloudF
 -----------------------------------------------------------------------------------------------------------------------
 YAML FILE FORMAT EXAMPLE
 -----------------------------------------------------------------------------------------------------------------------
-stackname: My Bastion Stack
-profilename: my_aws_cli_profile
-templateurl: https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/github/bastion.template
-templatelocal: $HOME/cloudformation/templates/bastion.template # Not used because uses3template = true
-parametersfilepath: $HOME/cloudformation/parameters/bonusbits-prd-bastion.json
+stackname: awsaccount-env-stack
+profilename: awsaccount
+templateurl: https://s3.amazonaws.com/cfn-bucket/stack-template.yml
+templatelocal: /path/to/cfnl_configs/stack1-template.yml # Not used because uses3template = true
+parametersfilepath: /path/to/template/parameters/awsaccount-region-env-stack-parameters.json
 iamaccess: true
 deletecreatefailures: false
 uses3template: true
-logfile: $HOME/cloudformation/logs/cfn-launcher.log
+logfile: /path/to/where/you/want/logs/cfnl-awsaccount-region-env-stack.log
 verbose: true
 waittime: 5
 maxwaits: 180
@@ -38,10 +38,10 @@ maxwaits: 180
 EXAMPLES
 -----------------------------------------------------------------------------------------------------------------------
 Create Stack
-$0 -c /path/to/script/configs/bonusbits-prd-bastion.yml
+$0 -c /path/to/cfnl/configs/awsaccount-region-env-stack-cfnlconfig.yml
 
 Update Stack
-$0 -u -c /path/to/script/configs/bonusbits-prd-bastion.yml
+$0 -u -c /path/to/cfnl/configs/awsaccount-region-env-stack-cfnlconfig.yml
 "
     echo "$helpmessage";
 }

@@ -28,15 +28,15 @@ This has been test
 2. Replace values with custom values as desired
     <br>**Example**<br>
     ```yaml
-    stackname: bonusbits-prd-bastion
-    profilename: bonusbits
-    templateurl: https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/github/bastion.template
-    templatelocal: ../cloudformation/templates/bastion.template # Not used because uses3template = true
-    parametersfilepath: ../cloudformation/parameters/bonusbits-prd-bastion.json
+    stackname: awsaccount-env-stack
+    profilename: awsaccount
+    templateurl: https://s3.amazonaws.com/cfn-bucket/stack-template.yml
+    templatelocal: /path/to/cfnl_configs/stack1-template.yml # Not used because uses3template = true
+    parametersfilepath: /path/to/template/parameters/awsaccount-region-env-stack-parameters.json
     iamaccess: true
     deletecreatefailures: false
     uses3template: true
-    logfile: /var/log/cfn_launcher/cfn-launcher.log
+    logfile: /path/to/where/you/want/logs/cfnl-awsaccount-region-env-stack.log
     verbose: true
     waittime: 5
     maxwaits: 180
