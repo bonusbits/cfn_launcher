@@ -4,7 +4,7 @@
 
 # Static Variables
 successful=false
-script_version=1.2.4-20161027
+script_version=1.2.5-20161101
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
@@ -174,7 +174,7 @@ function run_stack_command {
                                         --parameters file://${yaml_parametersfilepath}
     else
         aws cloudformation ${task_type} --profile ${yaml_profilename} \
-                                        --stack-name ${yaml_stackname}${capability_am} \
+                                        --stack-name ${yaml_stackname}${capability_iam} \
                                         --template-body file://${yaml_templatelocal}  \
                                         --parameters file://${yaml_parametersfilepath}
     fi

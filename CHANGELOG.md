@@ -1,6 +1,9 @@
 ##CHANGE LOG
 ---
 
+##1.2.5 - 10/27/2016 - Stable - Levon Becker
+* Added missing character in var for CAPABILITY_IAM
+
 ##1.2.4 - 10/27/2016 - Stable - Levon Becker
 * Added timeout count option for yaml config
 * Fixed indents to 4 spaces
