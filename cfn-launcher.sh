@@ -4,7 +4,7 @@
 
 # Static Variables
 successful=false
-script_version=1.2.5-20161101
+script_version=1.2.6-20161102
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
@@ -46,6 +46,11 @@ $0 -u -c /path/to/cfnl/configs/awsaccount-region-env-stack-cfnlconfig.yml
     echo "$helpmessage";
 }
 
+function version_message() {
+versionmessage="CloudFormation Launcher Version: $script_version"
+    echo "$versionmessage";
+}
+
 function usage() {
 usagemessage="
 usage: $0 [-u] -c ./config_file.yml
@@ -57,10 +62,11 @@ usage: $0 [-u] -c ./config_file.yml
     echo "$usagemessage";
 }
 
-while getopts "c:uh" opts; do
+while getopts "c:uvh" opts; do
     case $opts in
         c ) config_file_path=$OPTARG;;
         u ) update=true;;
+        v ) version_message; exit 0;;
         h ) help_message; exit 0;;
     esac
 done

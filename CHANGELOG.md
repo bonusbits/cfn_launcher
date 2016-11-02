@@ -1,6 +1,9 @@
 ##CHANGE LOG
 ---
 
+##1.2.6 - 11/02/2016 - Stable - Levon Becker
+* Added Version switch argument to display version
+
 ##1.2.5 - 11/01/2016 - Stable - Levon Becker
 * Added missing character in var for CAPABILITY_IAM
 
