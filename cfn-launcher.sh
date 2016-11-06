@@ -4,7 +4,7 @@
 
 # Static Variables
 successful=false
-script_version=1.2.6-20161102
+script_version=1.3.0-20161105
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
@@ -27,7 +27,8 @@ profilename: awsaccount
 templateurl: https://s3.amazonaws.com/cfn-bucket/stack-template.yml
 templatelocal: /path/to/cfnl_configs/stack1-template.yml # Not used because uses3template = true
 parametersfilepath: /path/to/template/parameters/awsaccount-region-env-stack-parameters.json
-iamaccess: true
+capabilityiam: true
+capabilitynamediam: false
 deletecreatefailures: false
 uses3template: true
 logfile: /path/to/where/you/want/logs/cfnl-awsaccount-region-env-stack.log
@@ -126,17 +127,18 @@ $script_version
 -----------------------------------------------------------------------------------------------------------------------
 PARAMETERS
 -----------------------------------------------------------------------------------------------------------------------
-STACK NAME:        $yaml_stackname
-PROFILE:           $yaml_profilename
-TEMPLATE:          $TEMPLATE
-PARAMETERS FILE:   $yaml_parametersfilepath
-ENABLE IAM:        $yaml_iamaccess
-TASK TYPE:         $task_type
-LOG FILE:          $yaml_logfile
-VERBOSE:           $yaml_verbose
-LAUNCHER CONFIG:   $config_file_path
-WAIT TIME (Sec):   $yaml_waittime
-MAX WAITS (Loops): $yaml_maxwaits
+STACK NAME:           $yaml_stackname
+PROFILE:              $yaml_profilename
+TEMPLATE:             $TEMPLATE
+PARAMETERS FILE:      $yaml_parametersfilepath
+CAPABILITY IAM:       $yaml_capabilityiam
+CAPABILITY NAMED IAM: $yaml_capabilitynamediam
+TASK TYPE:            $task_type
+LOG FILE:             $yaml_logfile
+VERBOSE:              $yaml_verbose
+LAUNCHER CONFIG:      $config_file_path
+WAIT TIME (Sec):      $yaml_waittime
+MAX WAITS (Loops):    $yaml_maxwaits
 -----------------------------------------------------------------------------------------------------------------------
   "
 	echo "$HEADER" | tee -a ${yaml_logfile};
@@ -164,9 +166,10 @@ function exit_check_nolog {
 
 function run_stack_command {
     # Determine if IAM Capabilities are Required
-    if [ "$yaml_iamaccess" == "true" ]
-    then
+    if [ "$yaml_capabilityiam" == "true" ]; then
         capability_iam=" --capabilities CAPABILITY_IAM"
+    elif [ "$yaml_capabilitynamediam" == "true" ]; then
+        capability_iam=" --capabilities CAPABILITY_NAMED_IAM"
     else
         capability_iam=" "
     fi

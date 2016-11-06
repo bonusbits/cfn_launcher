@@ -1,6 +1,10 @@
 ##CHANGE LOG
 ---
 
+##1.3.0 - 11/02/2016 - Levon Becker
+* Renamed iamaccess to capabilityiam
+* Added capabilitynamediam yaml config option
+
 ##1.2.6 - 11/02/2016 - Stable - Levon Becker
 * Added Version switch argument to display version
 

@@ -35,7 +35,8 @@ This has been test
     templateurl: https://s3.amazonaws.com/cfn-bucket/stack-template.yml
     templatelocal: /path/to/cfnl_configs/stack1-template.yml # Not used because uses3template = true
     parametersfilepath: /path/to/template/parameters/awsaccount-region-env-stack-parameters.json
-    iamaccess: true
+    capabilityiam: true
+    capabilitynamediam: false
     deletecreatefailures: false
     uses3template: true
     logfile: /path/to/where/you/want/logs/cfnl-awsaccount-region-env-stack.log
