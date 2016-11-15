@@ -4,7 +4,7 @@
 successful=false
 delete_successful=false
 triggered_delete=false
-script_version=1.4.0
+script_version=1.5.0
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
@@ -22,17 +22,17 @@ DESCRIPTION:  This script uses the AWS CLI and BASH to create, update or delete 
 -----------------------------------------------------------------------------------------------------------------------
 YAML FILE FORMAT EXAMPLE
 -----------------------------------------------------------------------------------------------------------------------
-stackname: awsaccount-env-stack
+stackname: stack1
 profilename: awsaccount
-templateurl: https://s3.amazonaws.com/cfn-bucket/stack-template.yml
-templatelocal: /path/to/cfnl_configs/stack1-template.yml # Not used because uses3template = true
-parametersfilepath: /path/to/template/parameters/awsaccount-region-env-stack-parameters.json
-capabilityiam: true
+templateurl: https://s3.amazonaws.com/bucket/stack1.yml
+templatelocal: /path/to/cfn/templates/stack1.yml # Not used if uses3template: true
+parametersfilepath: /path/to/cfn/template/parameters/awsaccount-stack1-dev-uswest2.json
+capabilityiam: false
 capabilitynamediam: false
-deletecreatefailures: false
+deletecreatefailures: true
 uses3template: true
 nolog: false
-logfile: /path/to/where/you/want/logs/cfnl-awsaccount-region-env-stack.log
+logfile: /path/to/where/you/want/logs/awsaccount-stack1-dev-uswest2.log
 verbose: true
 waittime: 5
 maxwaits: 180
@@ -41,13 +41,13 @@ noheader: false
 EXAMPLES
 -----------------------------------------------------------------------------------------------------------------------
 Create Stack
-$0 -c /path/to/cfnl/configs/awsaccount-region-env-stack-cfnlconfig.yml
+$0 -f /path/to/cfnl/configs/awsaccount-stack-env-region.yml
 
 Update Stack
-$0 -u -c /path/to/cfnl/configs/awsaccount-region-env-stack-cfnlconfig.yml
+$0 -u -f /path/to/cfnl/configs/awsaccount-stack-env-region.yml
 
 Delete Stack
-$0 -d -c /path/to/cfnl/configs/awsaccount-region-env-stack-cfnlconfig.yml
+$0 -d -f /path/to/cfnl/configs/awsaccount-stack-env-region.yml
 "
     echo "$helpmessage";
 }
@@ -59,25 +59,27 @@ versionmessage="CloudFormation Launcher Version: $script_version"
 
 function usage() {
 usagemessage="
-usage: $0 [-u] -c ./config_file.yml
+usage: $0 [-u] -f ./config_file.yml
 
--c Config File           :  YAML Script Config File Full Path (Required)
+-f File Path             :  YAML Script Config File Full Path (Required)
 -u Update Stack          :  Triggers Update Operation (Default is Create Stack)
--d Update Stack          :  Triggers Deletion of Stack
+-d Delete Stack          :  Triggers Deletion of Stack
 -h Help                  :  Displays Help Information
 "
     echo "$usagemessage";
 }
 
-while getopts "c:udvh" opts; do
+while getopts "f:udvh" opts; do
     case $opts in
-        c ) config_file_path=$OPTARG;;
+        f ) config_file_path=$OPTARG;;
         u ) update=true;;
         d ) delete=true;;
         v ) version_message; exit 0;;
         h ) help_message; exit 0;;
     esac
 done
+
+# TODO: Condition / Error handling for if -u and -d passed
 
 if [ "$config_file_path" == "" ]; then
 usage

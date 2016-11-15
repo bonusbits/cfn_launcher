@@ -14,7 +14,8 @@ Simple use a default create YAML config or create you own custom YAML config fil
 This has been test
 * BASH Shell
 * **tee** command installed
-* Proxy configured for Shell
+    * Unless set ```nolog: true``` in config
+* Proxy configured for Shell if needed
 * AWS CLI installed and configured
 
 ## Usage
@@ -30,20 +31,88 @@ This has been test
     **Example**
     
     ```yaml
-    stackname: awsaccount-env-stack
+    stackname: stack1
     profilename: awsaccount
-    templateurl: https://s3.amazonaws.com/cfn-bucket/stack-template.yml
-    templatelocal: /path/to/cfnl_configs/stack1-template.yml # Not used because uses3template = true
-    parametersfilepath: /path/to/template/parameters/awsaccount-region-env-stack-parameters.json
-    capabilityiam: true
+    templateurl: https://s3.amazonaws.com/bucket/stack1.yml
+    templatelocal: /path/to/cfn/templates/stack1.yml # Not used if uses3template: true
+    parametersfilepath: /path/to/cfn/template/parameters/awsaccount-stack1-dev-uswest2.json
+    capabilityiam: false
     capabilitynamediam: false
-    deletecreatefailures: false
+    deletecreatefailures: true
     uses3template: true
-    logfile: /path/to/where/you/want/logs/cfnl-awsaccount-region-env-stack.log
+    nolog: false
+    logfile: /path/to/where/you/want/logs/awsaccount-stack1-dev-uswest2.log
     verbose: true
     waittime: 5
     maxwaits: 180
+    noheader: false
     ```
+
+## Script Symlink and Aliases (Optional)
+Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
+I generally like to create a symbolic link to the shell script in a standard accessable path that is already setup in the ```PATH``` environment variable. 
+Then I create various aliases in my bash profile or aliases script to call the script with different configurations to make it quick and easy to call.
+Yes these alias examples are long, but you can tab auto fill. 
+Of course you can name the aliases whatever you want as long as there is not another command with the same name on the system. 
+It could be as simple as cfc1, cfu1, cfd1, cfc2... or c-s1-uw2, u-s2-uw2, d-s2-uw2, c-s2-ue1... or cs1uw2, ds1uw2... etc. Whatever makes since to you...
+Then the only challenge is if they are really short is remembering what each means.
+
+### Symlink
+
+```bash
+ if [ ! -h "/usr/local/bin/cfnl" ]; then
+   ln -s "/path/to/clone/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfnl
+ fi
+```
+    
+### Aliases
+
+```bash
+# Stack 1
+alias cfnl-create-stack1-dev-uswest2-="cfnl -f /path/to/cfnl_configs/stack1-dev-uswest2.yml"
+alias cfnl-update-stack1-dev-uswest2="cfnl -u -f /path/to/cfnl_configs/stack1-dev-uswest2.yml"
+alias cfnl-delete-stack1-dev-uswest2="cfnl -d -f /path/to/cfnl_configs/stack1-dev-uswest2.yml"
+alias cfnl-create-stack1-dev-useast1="cfnl -f /path/to/cfnl_configs/stack1-dev-useast1.yml"
+alias cfnl-update-stack1-dev-useast1="cfnl -u -f /path/to/cfnl_configs/stack1-dev-useast1.yml"
+alias cfnl-delete-stack1-dev-useast1="cfnl -d -f /path/to/cfnl_configs/stack1-dev-useast1.yml"
+# Stack 2
+alias cfnl-update-stack2-dev-uswest2="cfnl -u -f /path/to/cfnl_configs/stack2-dev-uswest2.yml"
+alias cfnl-create-stack2-dev-uswest2="cfnl -f /path/to/cfnl_configs/stack2-dev-uswest2.yml"
+alias cfnl-delete-stack2-dev-uswest2="cfnl -d -f /path/to/cfnl_configs/stack2-dev-uswest2.yml"
+alias cfnl-update-stack2-dev-useast1="cfnl -u -f /path/to/cfnl_configs/stack2-dev-useast1.yml"
+alias cfnl-create-stack2-dev-useast1="cfnl -f /path/to/cfnl_configs/stack2-dev-useast1.yml"
+alias cfnl-delete-stack2-dev-useast1="cfnl -d -f /path/to/cfnl_configs/stack2-dev-useast1.yml"
+```
+
+**OR**
+
+Or you could stip down all the entries to keep up with by doing something like this...
+
+```bash
+alias cf-c="cfnl -f "
+alias cf-u="cfnl -u -f "
+alias cf-d="cfnl -d -f "
+
+alias stack1-dev-uswest2="/path/to/cfnl_configs/stack1-dev-uswest2.yml"
+alias stack1-dev-useast1="/path/to/cfnl_configs/stack1-dev-useast1.yml"
+alias stack2-dev-uswest2="/path/to/cfnl_configs/stack2-dev-uswest2.yml"
+alias stack2-dev-useast1="/path/to/cfnl_configs/stack2-dev-useast1.yml"
+```
+
+Then Call create ```cf-c stack1-dev-uswest2``` update ```cf-u stack1-dev-uswest2``` delete ```cf-d stack1-dev-uswest2```
+    
+The reason I show with a region suffix on the example configurations is because the cfnl config points to your CloudFormation Parameters that probably has region specifics. 
+ Such as, VPC, Subnets, Security Groups, Access Keys, etc.
+ 
+Also, if you need to switch between AWS Accounts or update STS. That can be dropped in front of the CFNL call with ```&&``` separator. 
+ 
+Example:
+**aws-set** is function from somewhere that we wrote that sets environment variables for different AWS accounts.
+**gentoken** is function from somewhere that we wrote that runs a script to update our AWS Secure Tokens.
+
+```bash
+alias cf-c="aws-set awsaccount-dev-uswest2 && gentoken && cfnl -f "
+```
     
 ### Run CFNL
 1. Open Terminal
@@ -56,45 +125,20 @@ This has been test
 
     ```bash
     # Create Stack
-    /path/to/cfn_launcher/cfn-launcher.sh -c /path/to/cfnl_configs/my-launcher-config.yml
+    /path/to/cfn_launcher/cfn-launcher.sh -f /path/to/cfnl_configs/my-launcher-config.yml
     # If created alias or symlink
-    cfnl -c /path/to/cfnl_configs/my-launcher-config.yml
+    cfnl -f /path/to/cfnl_configs/my-launcher-config.yml
  
     # Update Stack
-    /path/to/cfn_launcher/cfn-launcher.sh -u -c /path/to/cfnl_configs/my-launcher-config.yml
+    /path/to/cfn_launcher/cfn-launcher.sh -u -f /path/to/cfnl_configs/my-launcher-config.yml
     # If created alias or symlink
-    cfnl -u -c /path/to/cfnl_configs/my-launcher-config.yml
+    cfnl -u -f /path/to/cfnl_configs/my-launcher-config.yml
     ```
-
-## Example Pathing Access Options
-Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
-Any one of a combo of these options can make it simple to fire off without much effort.
-
-1. Symlink the shell script to a place in path
-
-    ```bash
-     if [ ! -h "/usr/local/bin/cfnl" ]; then
-       ln -s "/path/to/clone/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfnl
-     fi
-    ```
-2. Create aliases for stacks configs
-
-    ```bash
-    # Create Stack
-    alias cfnl-create-stack1-uswest1="cfnl -c /path/to/cfnl_configs/stack1-uswest1.yml"
-    alias cfnl-create-stack2-uswest1="cfnl -c /path/to/cfnl_configs/stack2-uswest1.yml"
-    # Update Stack
-    alias cfnl-update-stack1-uswest1="cfnl -u -c /path/to/cfnl_configs/stack1-uswest1.yml"
-    alias cfnl-update-stack2-uswest1="cfnl -u -c /path/to/cfnl_configs/stack2-uswest1.yml"
-    ```
-    
-The reason I show with a region suffix on the example configurations is because the cfnl config points to your CloudFormation Parameters that probably has region specifics. 
- Such as, VPC, Subnets, Security Groups, Access Keys, etc.
     
 ### Output Examples
 
 ```bash
-./cfn-launcher.sh -c ../cloudformation/cfnl_configs/bonusbits-prd-bastion-uswest1.yml
+./cfn-launcher.sh -f ../cloudformation/cfnl_configs/bonusbits-prd-bastion-uswest1.yml
 ```
 
 #### Success

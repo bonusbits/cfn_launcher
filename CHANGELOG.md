@@ -1,6 +1,9 @@
 ##CHANGE LOG
 ---
 
+##1.5.0 - 11/15/2016 - Levon Becker
+* Switched yaml parameter file argument from -c (config) to -f (file) So it doesn't get confused with "create"
+
 ##1.4.0 - 11/15/2016 - Levon Becker
 * Added Delete Stack switch argument and logic
 * Added --profile to describe command

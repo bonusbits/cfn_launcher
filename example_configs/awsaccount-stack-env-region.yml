@@ -1,0 +1,15 @@
+stackname: stack1
+profilename: awsaccount
+templateurl: https://s3.amazonaws.com/bucket/stack1.yml
+templatelocal: /path/to/cfn/templates/stack1.yml # Not used if uses3template: true
+parametersfilepath: /path/to/cfn/template/parameters/awsaccount-stack1-dev-uswest2.json
+capabilityiam: false
+capabilitynamediam: false
+deletecreatefailures: true
+uses3template: true
+nolog: false
+logfile: /path/to/where/you/want/logs/awsaccount-stack1-dev-uswest2.log
+verbose: true
+waittime: 5
+maxwaits: 180
+noheader: false
