@@ -1,6 +1,18 @@
 ##CHANGE LOG
 ---
 
+##1.4.0 - 11/15/2016 - Levon Becker
+* Added Delete Stack switch argument and logic
+* Added --profile to describe command
+* Merged exit check functions
+* Added delete triggered logic for exit check when the stack is removed a 255 will return
+* Added no log option to yaml so log file write can be disabled
+* Removed date & time from version
+* Merged message functions
+* Moved Action variable logic
+* Added Action output to Header
+* Added No Header Option
+
 ##1.3.0 - 11/02/2016 - Levon Becker
 * Renamed iamaccess to capabilityiam
 * Added capabilitynamediam yaml config option

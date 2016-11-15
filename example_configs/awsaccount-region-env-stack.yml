@@ -7,7 +7,9 @@ capabilityiam: true
 capabilitynamediam: false
 deletecreatefailures: false
 uses3template: true
+nolog: false
 logfile: /path/to/where/you/want/logs/cfnl-awsaccount-region-env-stack.log
 verbose: true
 waittime: 5
 maxwaits: 180
+noheader: false
