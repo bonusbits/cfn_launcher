@@ -4,7 +4,7 @@
 successful=false
 delete_successful=false
 triggered_delete=false
-script_version=1.5.0
+script_version=1.5.1
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
@@ -142,7 +142,6 @@ TEMPLATE:             $TEMPLATE
 PARAMETERS FILE:      $yaml_parametersfilepath
 CAPABILITY IAM:       $yaml_capabilityiam
 CAPABILITY NAMED IAM: $yaml_capabilitynamediam
-TASK TYPE:            $task_type
 NO LOG:               $yaml_nolog
 LOG FILE:             $yaml_logfile
 VERBOSE:              $yaml_verbose
@@ -248,6 +247,7 @@ function monitor_delete_stack_status {
         if [[ "$STATUS" == "DELETE_IN_PROGRESS" && ${count} -lt ${max_waits} ]]; then
             message "REPORT: Delete not complete!"
             message "REPORT: Attempt $count of $max_waits."
+            display_runtime
             message "Polling again in $wait_time seconds..."
             message ''
             sleep ${wait_time}
@@ -271,10 +271,12 @@ function monitor_stack_status {
         STATUS=$(aws cloudformation describe-stacks --profile ${yaml_profilename} --stack-name "$yaml_stackname" --output text --query 'Stacks[*].StackStatus')
         exit_check $? "Executing Status Check"
         message "REPORT: Status (${STATUS})"
+        elapsed=$(( ($(date +%s) - ${start_time}) / 60 ))
 
         if [[ "$STATUS" == "${ACTION}_IN_PROGRESS" && ${count} -lt ${max_waits} ]]; then
             message "REPORT: $ACTION stack is not complete!"
             message "REPORT: Attempt $count of $max_waits."
+            display_runtime
             message "REPORT: Polling again in $wait_time seconds..."
             message ''
             sleep ${wait_time}
@@ -288,6 +290,7 @@ function monitor_stack_status {
         elif [ "$STATUS" == "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS" ]; then
             message 'REPORT: Cleanup in Progress'
             message "REPORT: Attempt $count of $max_waits."
+            display_runtime
             message "REPORT: Polling again in $wait_time seconds..."
             message ''
             sleep ${wait_time}
@@ -308,6 +311,7 @@ function monitor_stack_status {
                 message 'ERROR:  Failed and Rolling Back!'
                 message "REPORT: Rollback not complete!"
                 message "REPORT: Attempt $count of $max_waits."
+                display_runtime
                 message "Polling again in $wait_time seconds..."
                 message ''
                 sleep ${wait_time}
@@ -326,6 +330,12 @@ function monitor_stack_status {
             break
         fi
     done
+}
+
+function display_runtime {
+    elapsed_seconds="$(($(date +%s) - ${start_time}))"
+    formatted_runtime=$(printf "%02d minutes %02d seconds\n" "$((elapsed_seconds/60%60))" "$((elapsed_seconds%60))")
+    message "RUNTIME: ${formatted_runtime}"
 }
 
 # Start Time
@@ -349,16 +359,14 @@ else
     run_stack_command
 fi
 
-# End Time
+# Runtime
 end_time=$(date +%s)
-
-# Results
 message ''
 message "ENDTIME: ($(date))"
-elapsed=$(( (${end_time} - ${start_time}) / 60 ))
-message "RUNTIME: ${elapsed} minutes"
+display_runtime
 message ''
 
+# Results
 if [[ "$delete_successful" == "true" && "$ACTION" == "DELETE" ]]; then
     message "REPORT: DELETE SUCCESS!"
     message ''

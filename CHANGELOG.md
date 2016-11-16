@@ -1,6 +1,11 @@
 ##CHANGE LOG
 ---
 
+##1.5.1 - 11/15/2016 - Levon Becker
+* Removed Task Type from header since Action replaces it.
+* Move Display Runtime to Function so can be used during loops
+* Improved Runtime output
+
 ##1.5.0 - 11/15/2016 - Levon Becker
 * Switched yaml parameter file argument from -c (config) to -f (file) So it doesn't get confused with "create"
 
