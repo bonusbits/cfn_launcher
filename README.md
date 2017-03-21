@@ -91,33 +91,28 @@ function cfnl-show() {
     echo "CFNL_PATH: ($CFNL_PATH)"
 }
 
-function cfnl-set-vars() {
-    cfnl_configs_path="$HOME/.cfnl"
-    region=$1
-    client=$2
-    aws_account=$3
-    aws_env=$4
-    project=$5
+function cfnl-set-path() {
+    cfnl_configs_path=$1
 
-    export CFNL_PATH="$cfnl_configs_path/$region/$client/$aws_account/$aws_env/$project"
+    export CFNL_PATH="$cfnl_configs_path"
     cfnl-show
 }
 
 # Default
-cfnl-set-vars uswest2 client01 account01 prd project01
+cfnl-set-path $HOME/.cfnl/uswest2/client1/account01/prd/project01
 
 function cfc() {
-    echo "Running (/usr/local/bin/cfnl -f ${CFNL_PATH}/${1}.yml)"
+    echo "Running Create Stack (/usr/local/bin/cfnl -f ${CFNL_PATH}/${1}.yml)"
     /usr/local/bin/cfnl -f "$CFNL_PATH/$1.yml"
 }
 
 function cfu() {
-    echo "Running (/usr/local/bin/cfnl -u -f ${CFNL_PATH}/${1}.yml)"
+    echo "Running Update Stack (/usr/local/bin/cfnl -u -f ${CFNL_PATH}/${1}.yml)"
     /usr/local/bin/cfnl -u -f "$CFNL_PATH/$1.yml"
 }
 
 function cfd() {
-    echo "Running (/usr/local/bin/cfnl -d -f ${CFNL_PATH}/${1}.yml)"
+    echo "Running Delete Stack (/usr/local/bin/cfnl -d -f ${CFNL_PATH}/${1}.yml)"
     /usr/local/bin/cfnl -d -f "$CFNL_PATH/$1.yml"
 }
 ```
