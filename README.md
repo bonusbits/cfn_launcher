@@ -66,43 +66,109 @@ Then the only challenge is if they are really short is remembering what each mea
 ```
     
 ### Aliases
+Examples BASH Profile scripts to simplify use.
 
+#### .bash_profile
 ```bash
-# Stack 1
-alias cfnl-create-stack1-dev-uswest2-="cfnl -f /path/to/cfnl_configs/stack1-dev-uswest2.yml"
-alias cfnl-update-stack1-dev-uswest2="cfnl -u -f /path/to/cfnl_configs/stack1-dev-uswest2.yml"
-alias cfnl-delete-stack1-dev-uswest2="cfnl -d -f /path/to/cfnl_configs/stack1-dev-uswest2.yml"
-alias cfnl-create-stack1-dev-useast1="cfnl -f /path/to/cfnl_configs/stack1-dev-useast1.yml"
-alias cfnl-update-stack1-dev-useast1="cfnl -u -f /path/to/cfnl_configs/stack1-dev-useast1.yml"
-alias cfnl-delete-stack1-dev-useast1="cfnl -d -f /path/to/cfnl_configs/stack1-dev-useast1.yml"
-# Stack 2
-alias cfnl-update-stack2-dev-uswest2="cfnl -u -f /path/to/cfnl_configs/stack2-dev-uswest2.yml"
-alias cfnl-create-stack2-dev-uswest2="cfnl -f /path/to/cfnl_configs/stack2-dev-uswest2.yml"
-alias cfnl-delete-stack2-dev-uswest2="cfnl -d -f /path/to/cfnl_configs/stack2-dev-uswest2.yml"
-alias cfnl-update-stack2-dev-useast1="cfnl -u -f /path/to/cfnl_configs/stack2-dev-useast1.yml"
-alias cfnl-create-stack2-dev-useast1="cfnl -f /path/to/cfnl_configs/stack2-dev-useast1.yml"
-alias cfnl-delete-stack2-dev-useast1="cfnl -d -f /path/to/cfnl_configs/stack2-dev-useast1.yml"
+# CloudFormation Launcher Aliases
+if [ -f $HOME/.bash_cfnl ]; then
+	  source $HOME/.bash_cfnl
+fi
 ```
 
-**OR**
-
-Or you could stip down all the entries to keep up with by doing something like this...
-
+#### .bash_cfnl
 ```bash
-alias cf-c="cfnl -f "
-alias cf-u="cfnl -u -f "
-alias cf-d="cfnl -d -f "
+#!/usr/bin/env bash
 
-alias stack1-dev-uswest2="/path/to/cfnl_configs/stack1-dev-uswest2.yml"
-alias stack1-dev-useast1="/path/to/cfnl_configs/stack1-dev-useast1.yml"
-alias stack2-dev-uswest2="/path/to/cfnl_configs/stack2-dev-uswest2.yml"
-alias stack2-dev-useast1="/path/to/cfnl_configs/stack2-dev-useast1.yml"
+# CloudFormation Launcher - https://github.com/bonusbits/cfn_launcher
+
+# Symlink
+if [ ! -h "/usr/local/bin/cfnl" ]; then
+   ln -s "$HOME/Development/github/bonusbits/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfnl
+fi
+
+function cfnl-show() {
+    echo "CFNL_PATH: ($CFNL_PATH)"
+}
+
+function cfnl-set-vars() {
+    cfnl_configs_path="$HOME/.cfnl"
+    region=$1
+    client=$2
+    aws_account=$3
+    aws_env=$4
+    project=$5
+
+    export CFNL_PATH="$cfnl_configs_path/$region/$client/$aws_account/$aws_env/$project"
+    cfnl-show
+}
+
+# Default
+cfnl-set-vars uswest2 client01 account01 prd project01
+
+function cfc() {
+    echo "Running (/usr/local/bin/cfnl -f ${CFNL_PATH}/${1}.yml)"
+    /usr/local/bin/cfnl -f "$CFNL_PATH/$1.yml"
+}
+
+function cfu() {
+    echo "Running (/usr/local/bin/cfnl -u -f ${CFNL_PATH}/${1}.yml)"
+    /usr/local/bin/cfnl -u -f "$CFNL_PATH/$1.yml"
+}
+
+function cfd() {
+    echo "Running (/usr/local/bin/cfnl -d -f ${CFNL_PATH}/${1}.yml)"
+    /usr/local/bin/cfnl -d -f "$CFNL_PATH/$1.yml"
+}
 ```
 
-Then Call create ```cf-c stack1-dev-uswest2``` update ```cf-u stack1-dev-uswest2``` delete ```cf-d stack1-dev-uswest2```
-    
-The reason I show with a region suffix on the example configurations is because the cfnl config points to your CloudFormation Parameters that probably has region specifics. 
- Such as, VPC, Subnets, Security Groups, Access Keys, etc.
+#### Folder Structure
+
+```
+ $HOME/.cfnl/
+└── uswest2
+    └── client01
+        └── account01
+            ├── dev
+            │   ├── project01
+            │   │   └── efs.yml
+            │   │   └── rds-snapshot.yml
+            │   │   └── web.yml
+            │   ├── shared
+            │   │   └── vpc.yml
+            │   │   └── utm.yml
+            │   └── project02
+            │       ├── efs.yml
+            │       └── rds-snapshot.yml
+            │       └── web.yml
+            └── prd
+                ├── project01
+                │   ├── efs.yml
+                │   ├── rds.yml
+                │   └── web.yml
+                ├── shared
+                │   ├── vpc.yml
+                │   └── utm.yml
+                └── project02
+                    ├── efs.yml
+                    ├── rds.yml
+                    ├── web-blue.yml
+                    └── web-green.yml
+```
+
+#### Example Commands
+```bash
+# Set CFNL Path
+cfnl-set-vars uswest2 client01 account01 prd project01
+# CFNL is now set to use $HOME/.cfnl/uswest2/client01/account01/dev/project01/*.yml
+
+# Create Stack
+cfc web
+# Delete Stack
+cfd web
+# Update Stack
+cfu web
+```
  
 Also, if you need to switch between AWS Accounts or update STS. That can be dropped in front of the CFNL call with ```&&``` separator. 
  
@@ -114,7 +180,7 @@ Example:
 alias cf-c="aws-set awsaccount-dev-uswest2 && gentoken && cfnl -f "
 ```
     
-### Run CFNL
+### Run CFNL Without Aliases
 1. Open Terminal
 2. Change to this directory
 
@@ -133,14 +199,14 @@ alias cf-c="aws-set awsaccount-dev-uswest2 && gentoken && cfnl -f "
     /path/to/cfn_launcher/cfn-launcher.sh -u -f /path/to/cfnl_configs/my-launcher-config.yml
     # If created alias or symlink
     cfnl -u -f /path/to/cfnl_configs/my-launcher-config.yml
+ 
+    # Delete Stack
+    /path/to/cfn_launcher/cfn-launcher.sh -u -f /path/to/cfnl_configs/my-launcher-config.yml
+    # If created alias or symlink
+    cfnl -d -f /path/to/cfnl_configs/my-launcher-config.yml
     ```
     
 ### Output Examples
-
-```bash
-./cfn-launcher.sh -f ../cloudformation/cfnl_configs/bonusbits-prd-bastion-uswest1.yml
-```
-
 #### Success
     -----------------------------------------------------------------------------------------------------------------------
     |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
