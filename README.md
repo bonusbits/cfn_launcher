@@ -7,10 +7,10 @@ It is designed to be reusable without having to make changes to the script.
 Simple use a default create YAML config or create you own custom YAML config file.
 
 ## Tested Environment
-* macOS El Capitan 10.11.6
-* AWS CLI v1.10.66
+* macOS Sierra 10.12.3
+* AWS CLI v1.11.55
 
-# Prerequisites
+## Prerequisites
 This has been test
 * BASH Shell
 * **tee** command installed
@@ -18,57 +18,74 @@ This has been test
 * Proxy configured for Shell if needed
 * AWS CLI installed and configured
 
-## Usage
-### Download Repo Locally
+## Setup
 1. Open Terminal
 2. Pull down this git repository locally
     1. ```git clone https://github.com/bonusbits/cfn_launcher.git /path/to/clone/```
+3. Create symlink & aliases the the *cfnl.sh* as desired. Examples below.
 
-### CFNL Config
-1. Create new YAML file with the same content of one of the example configs
-2. Replace values with custom values as desired
     
-    **Example**
+## Help
+The following can be displayed with the *-h* switch.
     
-    ```yaml
+```
+CloudFormation Launcher v1.6.0
+
+Usage: /usr/local/bin/cfnl [-u | -d | -s] -f ./config_file.yml
+
+Options:
+    -f File Path             :  (Required) YAML Script Config File Full Path
+    -u Update Stack          :  (Action Flag) Sets Action to Update Stack
+    -d Delete Stack          :  (Action Flag) Sets Action to Delete Stack
+    -s Stack Status          :  (Action Flag) Sets Action to Get Stack Status
+    -b Debug Output          :  Display Additional Output for Debugging
+    -h Help                  :  Displays Help Information
+    -v Version               :  Displays Script Version
+
+Action Flags:
+    Only one action flag can be used. The default Action is 'Create'.
+    The three override Action Flags are -u, -d and -s.
+
+Description:
+    This script uses the AWS CLI and BASH to create, update, delete or get
+    status of a CloudFormation Stack. It uses the AWS CLI to push the
+    CloudFormation Template to AWS. Then loops over and over checking
+    status of the stack.
+
+YAML Config File Format Example:
     stackname: stack1
     profilename: awsaccount
-    templateurl: https://s3.amazonaws.com/bucket/stack1.yml
-    templatelocal: /path/to/cfn/templates/stack1.yml # Not used if uses3template: true
-    parametersfilepath: /path/to/cfn/template/parameters/awsaccount-stack1-dev-uswest2.json
+    templateurl: https://s3.amazonaws.com/bucket/webapp1.yml # Or .json
+    templatelocal: /path/to/cfn/templates/webapp1.yml # Unless using URL
+    parametersfilepath: /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.json
     capabilityiam: false
     capabilitynamediam: false
     deletecreatefailures: true
     uses3template: true
     nolog: false
-    logfile: /path/to/where/you/want/logs/awsaccount-stack1-dev-uswest2.log
+    logfile: /Users/levon/.cfnl/logs/uswest2/client1/account1/dev/webapp1.log
     verbose: true
     waittime: 5
     maxwaits: 180
-    noheader: false
-    ```
 
-## Script Symlink and Aliases (Optional)
-Here are some examples that can be used to allow access to the cfn-launcher script without needing to be in the repo as a working directory.
-I generally like to create a symbolic link to the shell script in a standard accessable path that is already setup in the ```PATH``` environment variable. 
-Then I create various aliases in my bash profile or aliases script to call the script with different configurations to make it quick and easy to call.
-Yes these alias examples are long, but you can tab auto fill. 
-Of course you can name the aliases whatever you want as long as there is not another command with the same name on the system. 
-It could be as simple as cfc1, cfu1, cfd1, cfc2... or c-s1-uw2, u-s2-uw2, d-s2-uw2, c-s2-ue1... or cs1uw2, ds1uw2... etc. Whatever makes since to you...
-Then the only challenge is if they are really short is remembering what each means.
+Examples:
+    Create Stack
+    /usr/local/bin/cfnl -f /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.yml
 
-### Symlink
+    Update Stack
+    /usr/local/bin/cfnl -u -f /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.yml
 
-```bash
- if [ ! -h "/usr/local/bin/cfnl" ]; then
-   ln -s "/path/to/clone/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfnl
- fi
-```
+    Delete Stack
+    /usr/local/bin/cfnl -d -f /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+
+    Stack Status
+    /usr/local/bin/cfnl -s -f /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+```    
     
-### Aliases
-Examples BASH Profile scripts to simplify use.
+## Example BASH Profile Functions and Aliases
+Examples BASH Profile scripts to simplify use, but are not required of course.
 
-#### .bash_profile
+### .bash_profile
 ```bash
 # CloudFormation Launcher Aliases
 if [ -f $HOME/.bash_cfnl ]; then
@@ -76,7 +93,7 @@ if [ -f $HOME/.bash_cfnl ]; then
 fi
 ```
 
-#### .bash_cfnl
+### .bash_cfnl
 ```bash
 #!/usr/bin/env bash
 
@@ -84,7 +101,7 @@ fi
 
 # Symlink
 if [ ! -h "/usr/local/bin/cfnl" ]; then
-   ln -s "$HOME/Development/github/bonusbits/cfn_launcher/cfn-launcher.sh" /usr/local/bin/cfnl
+   ln -s "$HOME/Development/github/bonusbits/cfn_launcher/cfnl.sh" /usr/local/bin/cfnl
 fi
 
 function cfnl-show() {
@@ -102,22 +119,28 @@ function cfnl-set-path() {
 cfnl-set-path $HOME/.cfnl/uswest2/client1/account01/prd/project01
 
 function cfc() {
-    echo "Running Create Stack (/usr/local/bin/cfnl -f ${CFNL_PATH}/${1}.yml)"
+    #echo "Running Create Stack (/usr/local/bin/cfnl -f ${CFNL_PATH}/${1}.yml)"
     /usr/local/bin/cfnl -f "$CFNL_PATH/$1.yml"
 }
 
 function cfu() {
-    echo "Running Update Stack (/usr/local/bin/cfnl -u -f ${CFNL_PATH}/${1}.yml)"
+    #echo "Running Update Stack (/usr/local/bin/cfnl -u -f ${CFNL_PATH}/${1}.yml)"
     /usr/local/bin/cfnl -u -f "$CFNL_PATH/$1.yml"
 }
 
 function cfd() {
-    echo "Running Delete Stack (/usr/local/bin/cfnl -d -f ${CFNL_PATH}/${1}.yml)"
+    #echo "Running Delete Stack (/usr/local/bin/cfnl -d -f ${CFNL_PATH}/${1}.yml)"
     /usr/local/bin/cfnl -d -f "$CFNL_PATH/$1.yml"
+}
+
+function cfs() {
+    # echo "Running Stack Status (/usr/local/bin/cfnl -s -f ${CFNL_PATH}/${1}.yml)"
+    /usr/local/bin/cfnl -s -f "$CFNL_PATH/$1.yml"
 }
 ```
 
-#### Folder Structure
+### Example Folder Structure
+You can use whatever folder structure you like. This is just an example.
 
 ```
  $HOME/.cfnl/
@@ -151,10 +174,10 @@ function cfd() {
                     └── web-green.yml
 ```
 
-#### Example Commands
+### Example Aliased Commands
 ```bash
 # Set CFNL Path
-cfnl-set-vars uswest2 client01 account01 prd project01
+cfnl-set-path $HOME/.cfnl/uswest2/client01/account01/dev/project01
 # CFNL is now set to use $HOME/.cfnl/uswest2/client01/account01/dev/project01/*.yml
 
 # Create Stack
@@ -163,159 +186,151 @@ cfc web
 cfd web
 # Update Stack
 cfu web
-```
- 
-Also, if you need to switch between AWS Accounts or update STS. That can be dropped in front of the CFNL call with ```&&``` separator. 
- 
-Example:
-**aws-set** is function from somewhere that we wrote that sets environment variables for different AWS accounts.
-**gentoken** is function from somewhere that we wrote that runs a script to update our AWS Secure Tokens.
-
-```bash
-alias cf-c="aws-set awsaccount-dev-uswest2 && gentoken && cfnl -f "
+# Stack Status
+cfs web
 ```
     
-### Run CFNL Without Aliases
-1. Open Terminal
-2. Change to this directory
-
-    ```bash
-    cd /path/to/clone/cfn-launcher/
-    ```
-3. Run script and point to a config yaml file
-
-    ```bash
-    # Create Stack
-    /path/to/cfn_launcher/cfn-launcher.sh -f /path/to/cfnl_configs/my-launcher-config.yml
-    # If created alias or symlink
-    cfnl -f /path/to/cfnl_configs/my-launcher-config.yml
- 
-    # Update Stack
-    /path/to/cfn_launcher/cfn-launcher.sh -u -f /path/to/cfnl_configs/my-launcher-config.yml
-    # If created alias or symlink
-    cfnl -u -f /path/to/cfnl_configs/my-launcher-config.yml
- 
-    # Delete Stack
-    /path/to/cfn_launcher/cfn-launcher.sh -u -f /path/to/cfnl_configs/my-launcher-config.yml
-    # If created alias or symlink
-    cfnl -d -f /path/to/cfnl_configs/my-launcher-config.yml
-    ```
-    
-### Output Examples
-#### Success
-    -----------------------------------------------------------------------------------------------------------------------
-    |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-    -----------------------------------------------------------------------------------------------------------------------
-    CloudFormation Launcher
-    1.1.1_10-20-2016
-    -----------------------------------------------------------------------------------------------------------------------
-    PARAMETERS
-    -----------------------------------------------------------------------------------------------------------------------
-    STACK NAME:       bonusbits-prd-bastion
-    PROFILE:          bonusbits
-    TEMPLATE:         https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/github/bastion.template
-    PARAMETERS FILE:  ./bonusbits-prd-bastion.json
-    ENABLE IAM:       true
-    TASK TYPE:        create-stack
-    LOG FILE:         /var/log/cfn-launcher/cfn-launcher.log
-    VERBOSE:          true
-    -----------------------------------------------------------------------------------------------------------------------
-    
+## Output Examples
+### Create
+    [2017-03-21_13:44:35] ** Start CloudFormation Launcher v1.6.0 **
+    [2017-03-21_13:44:35] ACTION: CREATE
     {
-        "StackId": "arn:aws:cloudformation:us-west-2:00000000000:stack/bonusbits-prd-bastion/37f98fa0-96e7-11e6-b5c9-50d6cd0dfcc6"
+        "StackId": "arn:aws:cloudformation:us-west-2:000000000000:stack/webapp1/32046180-0e78-11e7-86c8-513ac9841b19"
     }
-    [2016-10-20_10:12:35] REPORT: Success Started Stack Command
-    [2016-10-20_10:12:36] REPORT: Success Loaded Status Check into Variable
-    [2016-10-20_10:12:36] REPORT: Status (CREATE_IN_PROGRESS)
-    [2016-10-20_10:12:36] REPORT: CREATE stack is not complete!
-    [2016-10-20_10:12:36] REPORT: Attempt 1 of 180.
-    [2016-10-20_10:12:36] REPORT: Polling again in 5 seconds...
+    [2017-03-21_13:44:36] REPORT: Successfully Executed CREATE Stack Command
     
-    [2016-10-20_10:12:43] REPORT: Success Loaded Status Check into Variable
-    [2016-10-20_10:12:43] REPORT: Status (CREATE_IN_PROGRESS)
-    [2016-10-20_10:12:43] REPORT: CREATE stack is not complete!
-    [2016-10-20_10:12:43] REPORT: Attempt 2 of 180.
-    [2016-10-20_10:12:43] REPORT: Polling again in 5 seconds...
+    [2017-03-21_13:44:37] REPORT: Successfully Executing Status Check
+    [2017-03-21_13:44:37] REPORT: Status (CREATE_IN_PROGRESS)
+    [2017-03-21_13:44:37] REPORT: CREATE stack is not complete!
+    [2017-03-21_13:44:37] REPORT: Attempt 1 of 360.
+    [2017-03-21_13:44:37] RUNTIME: 00 minutes 02 seconds
+    [2017-03-21_13:44:37] REPORT: Polling again in 5 seconds...
     
-    ...
+    [2017-03-21_13:44:42] REPORT: Successfully Executing Status Check
+    [2017-03-21_13:44:42] REPORT: Status (CREATE_IN_PROGRESS)
+    [2017-03-21_13:44:42] REPORT: CREATE stack is not complete!
+    [2017-03-21_13:44:42] REPORT: Attempt 2 of 360.
+    [2017-03-21_13:44:42] RUNTIME: 00 minutes 07 seconds
+    [2017-03-21_13:44:42] REPORT: Polling again in 5 seconds...
     
-    [2016-10-20_10:16:25] REPORT: Success Loaded Status Check into Variable
-    [2016-10-20_10:16:25] REPORT: Status (CREATE_IN_PROGRESS)
-    [2016-10-20_10:16:25] REPORT: CREATE stack is not complete!
-    [2016-10-20_10:16:25] REPORT: Attempt 37 of 180.
-    [2016-10-20_10:16:25] REPORT: Polling again in 5 seconds...
+    [2017-03-21_13:44:48] REPORT: Successfully Executing Status Check
+    [2017-03-21_13:44:48] REPORT: Status (CREATE_IN_PROGRESS)
+    [2017-03-21_13:44:48] REPORT: CREATE stack is not complete!
+    [2017-03-21_13:44:48] REPORT: Attempt 3 of 360.
+    [2017-03-21_13:44:48] RUNTIME: 00 minutes 13 seconds
+    [2017-03-21_13:44:48] REPORT: Polling again in 5 seconds...
     
-    [2016-10-20_10:16:32] REPORT: Success Loaded Status Check into Variable
-    [2016-10-20_10:16:32] REPORT: Status (CREATE_COMPLETE)
-    [2016-10-20_10:16:32] REPORT: CREATE Completed!
+    ... Fast Forward ...
     
-    [2016-10-20_10:16:32] ENDTIME: (Thu Oct 20 10:16:32 PDT 2016)
-    [2016-10-20_10:16:32] RUNTIME: 3 minutes
+    [2017-03-21_14:00:48] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:00:48] REPORT: Status (CREATE_IN_PROGRESS)
+    [2017-03-21_14:00:48] REPORT: CREATE stack is not complete!
+    [2017-03-21_14:00:48] REPORT: Attempt 172 of 360.
+    [2017-03-21_14:00:48] RUNTIME: 16 minutes 13 seconds
+    [2017-03-21_14:00:48] REPORT: Polling again in 5 seconds...
     
-    [2016-10-20_10:16:32] REPORT: SUCCESS!
+    [2017-03-21_14:00:54] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:00:54] REPORT: Status (CREATE_COMPLETE)
+    [2017-03-21_14:00:54] REPORT: CREATE Completed!
+    
+    [2017-03-21_14:00:54] ENDTIME: (Tue Mar 21 14:00:54 PDT 2017)
+    [2017-03-21_14:00:54] RUNTIME: 16 minutes 19 seconds
+    
+    [2017-03-21_14:00:54] REPORT: CREATE SUCCESS!
 
-#### Failure
-    -----------------------------------------------------------------------------------------------------------------------
-    |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-    -----------------------------------------------------------------------------------------------------------------------
-    CloudFormation Launcher
-    1.1.1_10-20-2016
-    -----------------------------------------------------------------------------------------------------------------------
-    PARAMETERS
-    -----------------------------------------------------------------------------------------------------------------------
-    STACK NAME:       bonusbits-prd-bastion
-    PROFILE:          bonusbits
-    TEMPLATE:         https://s3.amazonaws.com/bonusbits-public/cloudformation-templates/github/bastion.template
-    PARAMETERS FILE:  ./bonusbits-prd-bastion.json
-    ENABLE IAM:       true
-    TASK TYPE:        create-stack
-    LOG FILE:         /var/log/cfn-launcher/cfn-launcher.log
-    VERBOSE:          true
-    -----------------------------------------------------------------------------------------------------------------------
-    
+### Update
+    [2017-03-21_14:11:10] ** Start CloudFormation Launcher v1.6.0 **
+    [2017-03-21_14:11:10] ACTION: UPDATE
     {
-        "StackId": "arn:aws:cloudformation:us-east-1:000000000000:stack/bonusbits-prd-bastion/3c98fcd0-96e7-17e6-9c84-80d5cd265c36"
+        "StackId": "arn:aws:cloudformation:us-west-2:000000000000:stack/webapp1/32046180-0e78-11e7-86c8-513ac9841b19"
     }
-    [2016-10-20_10:05:33] REPORT: Success Started Stack Command
-    [2016-10-20_10:05:34] REPORT: Success Loaded Status Check into Variable
-    [2016-10-20_10:05:34] REPORT: Status (CREATE_IN_PROGRESS)
-    [2016-10-20_10:05:34] REPORT: CREATE stack is not complete!
-    [2016-10-20_10:05:34] REPORT: Attempt 1 of 180.
-    [2016-10-20_10:05:34] REPORT: Polling again in 5 seconds...
+    [2017-03-21_14:11:11] REPORT: Successfully Executed UPDATE Stack Command
     
-    [2016-10-20_10:05:41] REPORT: Success Loaded Status Check into Variable
-    [2016-10-20_10:05:41] REPORT: Status (CREATE_IN_PROGRESS)
-    [2016-10-20_10:05:41] REPORT: CREATE stack is not complete!
-    [2016-10-20_10:05:41] REPORT: Attempt 2 of 180.
-    [2016-10-20_10:05:41] REPORT: Polling again in 5 seconds...
+    [2017-03-21_14:11:12] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:11:12] REPORT: Status (UPDATE_IN_PROGRESS)
+    [2017-03-21_14:11:12] REPORT: UPDATE stack is not complete!
+    [2017-03-21_14:11:12] REPORT: Attempt 1 of 360.
+    [2017-03-21_14:11:12] RUNTIME: 00 minutes 02 seconds
+    [2017-03-21_14:11:12] REPORT: Polling again in 5 seconds...
     
-    ...
+    [2017-03-21_14:11:17] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:11:17] REPORT: Status (UPDATE_IN_PROGRESS)
+    [2017-03-21_14:11:17] REPORT: UPDATE stack is not complete!
+    [2017-03-21_14:11:17] REPORT: Attempt 2 of 360.
+    [2017-03-21_14:11:17] RUNTIME: 00 minutes 07 seconds
+    [2017-03-21_14:11:17] REPORT: Polling again in 5 seconds...
     
-    [2016-10-20_10:07:57] REPORT: Success Loaded Status Check into Variable
-    [2016-10-20_10:07:57] REPORT: Status (CREATE_IN_PROGRESS)
-    [2016-10-20_10:07:57] REPORT: CREATE stack is not complete!
-    [2016-10-20_10:07:57] REPORT: Attempt 23 of 180.
-    [2016-10-20_10:07:57] REPORT: Polling again in 5 seconds...
+    ... Fast Forward ...
     
-    [2016-10-20_10:08:03] REPORT: Success Loaded Status Check into Variable
-    [2016-10-20_10:08:03] REPORT: Status (ROLLBACK_IN_PROGRESS)
-    [2016-10-20_10:08:03] ERROR: Failed and Rolling Back!
+    [2017-03-21_14:11:46] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:11:46] REPORT: Status (UPDATE_IN_PROGRESS)
+    [2017-03-21_14:11:46] REPORT: UPDATE stack is not complete!
+    [2017-03-21_14:11:46] REPORT: Attempt 7 of 360.
+    [2017-03-21_14:11:46] RUNTIME: 00 minutes 36 seconds
+    [2017-03-21_14:11:46] REPORT: Polling again in 5 seconds...
     
-    # TODO: Add example
+    [2017-03-21_14:11:52] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:11:52] REPORT: Status (UPDATE_COMPLETE)
+    [2017-03-21_14:11:52] REPORT: UPDATE Completed!
     
-    [2016-10-20_10:08:07] ACTION: Deleting Stack
-    [2016-10-20_10:08:09] REPORT: Success Deleting Stack Command
-    [2016-10-20_10:08:10] REPORT: Success Loaded Status Check into Variable
-    [2016-10-20_10:08:10] REPORT: Status (DELETE_IN_PROGRESS)
-    [2016-10-20_10:08:10] REPORT: Delete not complete!
-    [2016-10-20_10:08:10] REPORT: Attempt 24 of 180.
-    [2016-10-20_10:08:10] Polling again in 5 seconds...
+    [2017-03-21_14:11:52] ENDTIME: (Tue Mar 21 14:11:52 PDT 2017)
+    [2017-03-21_14:11:52] RUNTIME: 00 minutes 42 seconds
     
-    
-    [2016-10-20_10:08:15] ENDTIME: (Thu Oct 20 10:08:15 PDT 2016)
-    [2016-10-20_10:08:15] RUNTIME: 2 minutes
-    
-    [2016-10-20_10:08:16] ERROR: FAILED!
+    [2017-03-21_14:11:52] REPORT: UPDATE SUCCESS!
 
+### Status
+    /Users/username/.cfnl/uswest2/client1/account01/prd/webapp1.yml
+    Stack Status: (UPDATE_COMPLETE)
+    
+### Delete
+    [2017-03-21_14:17:20] ** Start CloudFormation Launcher v1.6.0 **
+    [2017-03-21_14:17:20] ACTION: DELETE
+    [2017-03-21_14:17:20] ACTION: Deleting Stack
+    [2017-03-21_14:17:21] REPORT: Successfully Executed Delete Stack Command
+    [2017-03-21_14:17:21] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:17:21] REPORT: Status (DELETE_IN_PROGRESS)
+    [2017-03-21_14:17:21] REPORT: Delete not complete!
+    [2017-03-21_14:17:21] REPORT: Attempt 1 of 360.
+    [2017-03-21_14:17:21] RUNTIME: 00 minutes 01 seconds
+    [2017-03-21_14:17:21] Polling again in 5 seconds...
+    
+    [2017-03-21_14:17:27] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:17:27] REPORT: Status (DELETE_IN_PROGRESS)
+    [2017-03-21_14:17:27] REPORT: Delete not complete!
+    [2017-03-21_14:17:27] REPORT: Attempt 2 of 360.
+    [2017-03-21_14:17:27] RUNTIME: 00 minutes 07 seconds
+    [2017-03-21_14:17:27] Polling again in 5 seconds...
+    
+    ... Fast Forward ...
+    
+    [2017-03-21_14:18:54] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:18:54] REPORT: Status (DELETE_IN_PROGRESS)
+    [2017-03-21_14:18:54] REPORT: Delete not complete!
+    [2017-03-21_14:18:54] REPORT: Attempt 17 of 360.
+    [2017-03-21_14:18:54] RUNTIME: 01 minutes 34 seconds
+    [2017-03-21_14:18:54] Polling again in 5 seconds...
+    
+    [2017-03-21_14:19:00] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:19:00] REPORT: Status (DELETE_IN_PROGRESS)
+    [2017-03-21_14:19:00] REPORT: Delete not complete!
+    [2017-03-21_14:19:00] REPORT: Attempt 18 of 360.
+    [2017-03-21_14:19:00] RUNTIME: 01 minutes 40 seconds
+    [2017-03-21_14:19:00] Polling again in 5 seconds...
+    
+    
+    An error occurred (ValidationError) when calling the DescribeStacks operation: Stack with id webapp1 does not exist
+    [2017-03-21_14:19:06] REPORT: Successfully Executing Status Check
+    [2017-03-21_14:19:06] REPORT: Status (DOES NOT EXIST)
+    [2017-03-21_14:19:06] REPORT: Stack Deleted (webapp1)
+    
+    [2017-03-21_14:19:06] ENDTIME: (Tue Mar 21 14:19:06 PDT 2017)
+    [2017-03-21_14:19:06] RUNTIME: 01 minutes 46 seconds
+    
+    [2017-03-21_14:19:06] REPORT: DELETE SUCCESS!
+
+### Status
+    /Users/username/.cfnl/uswest2/client1/account01/prd/webapp1.yml
+    Stack Status: (DOES NOT EXIST)
+    
 ## Troubleshooting
 * Can not use underscores of hyphens in yaml properties file key names.

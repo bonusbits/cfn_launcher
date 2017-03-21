@@ -1,6 +1,11 @@
 ##CHANGE LOG
 ---
 
+##1.6.0 - 03/21/2017 - Levon Becker
+* Added Stack Status Option
+* Added Error Handling for multiple Action Flag Options
+* Renamed Script from cfn-launcher.sh to cfnl.sh
+
 ##1.5.1 - 11/15/2016 - Levon Becker
 * Removed Task Type from header since Action replaces it.
 * Move Display Runtime to Function so can be used during loops

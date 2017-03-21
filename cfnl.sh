@@ -4,82 +4,111 @@
 successful=false
 delete_successful=false
 triggered_delete=false
-script_version=1.5.1
+script_version=1.6.0
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
 function help_message () {
-helpmessage="
------------------------------------------------------------------------------------------------------------------------
-|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
------------------------------------------------------------------------------------------------------------------------
-AUTHOR:       Levon Becker
-PURPOSE:      Create, Update or Delete CloudFormation Stack.
-VERSION:      $script_version
-DESCRIPTION:  This script uses the AWS CLI and BASH to create, update or delete a CloudFormation Stack.
-              It uses the AWS CLI to push the CloudFormation Template to AWS.
-              Then loops over and over checking status of the stack.
------------------------------------------------------------------------------------------------------------------------
-YAML FILE FORMAT EXAMPLE
------------------------------------------------------------------------------------------------------------------------
-stackname: stack1
-profilename: awsaccount
-templateurl: https://s3.amazonaws.com/bucket/stack1.yml
-templatelocal: /path/to/cfn/templates/stack1.yml # Not used if uses3template: true
-parametersfilepath: /path/to/cfn/template/parameters/awsaccount-stack1-dev-uswest2.json
-capabilityiam: false
-capabilitynamediam: false
-deletecreatefailures: true
-uses3template: true
-nolog: false
-logfile: /path/to/where/you/want/logs/awsaccount-stack1-dev-uswest2.log
-verbose: true
-waittime: 5
-maxwaits: 180
-noheader: false
------------------------------------------------------------------------------------------------------------------------
-EXAMPLES
------------------------------------------------------------------------------------------------------------------------
-Create Stack
-$0 -f /path/to/cfnl/configs/awsaccount-stack-env-region.yml
+helpmessage="Description:
+    This script uses the AWS CLI and BASH to create, update, delete or get
+    status of a CloudFormation Stack. It uses the AWS CLI to push the
+    CloudFormation Template to AWS. Then loops over and over checking
+    status of the stack.
 
-Update Stack
-$0 -u -f /path/to/cfnl/configs/awsaccount-stack-env-region.yml
+YAML Config File Format Example:
+    stackname: stack1
+    profilename: awsaccount
+    templateurl: https://s3.amazonaws.com/bucket/webapp1.yml # Or .json
+    templatelocal: /path/to/cfn/templates/webapp1.yml # Unless using URL
+    parametersfilepath: $HOME/.cfnl/uswest2/client1/account1/dev/webapp1.json
+    capabilityiam: false
+    capabilitynamediam: false
+    deletecreatefailures: true
+    uses3template: true
+    nolog: false
+    logfile: $HOME/.cfnl/logs/uswest2/client1/account1/dev/webapp1.log
+    verbose: true
+    waittime: 5
+    maxwaits: 180
 
-Delete Stack
-$0 -d -f /path/to/cfnl/configs/awsaccount-stack-env-region.yml
+Examples:
+    Create Stack
+    $0 -f $HOME/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+
+    Update Stack
+    $0 -u -f $HOME/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+
+    Delete Stack
+    $0 -d -f $HOME/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+
+    Stack Status
+    $0 -s -f $HOME/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+
+Author:
+    Levon Becker
+    https://github.com/LevonBecker
+    https://www.bonusbits.com
 "
+    usage
     echo "$helpmessage";
 }
 
 function version_message() {
-versionmessage="CloudFormation Launcher Version: $script_version"
+versionmessage="CloudFormation Launcher v$script_version"
     echo "$versionmessage";
 }
 
 function usage() {
-usagemessage="
-usage: $0 [-u] -f ./config_file.yml
+usagemessage="Usage: $0 [-u | -d | -s] -f ./config_file.yml
 
--f File Path             :  YAML Script Config File Full Path (Required)
--u Update Stack          :  Triggers Update Operation (Default is Create Stack)
--d Delete Stack          :  Triggers Deletion of Stack
--h Help                  :  Displays Help Information
+Options:
+    -f File Path             :  (Required) YAML Script Config File Full Path
+    -u Update Stack          :  (Action Flag) Sets Action to Update Stack
+    -d Delete Stack          :  (Action Flag) Sets Action to Delete Stack
+    -s Stack Status          :  (Action Flag) Sets Action to Get Stack Status
+    -b Debug Output          :  Display Additional Output for Debugging
+    -h Help                  :  Displays Help Information
+    -v Version               :  Displays Script Version
+
+Action Flags:
+    Only one action flag can be used. The default Action is 'Create'.
+    The three override Action Flags are -u, -d and -s.
 "
+    version_message
+    echo ''
     echo "$usagemessage";
 }
 
-while getopts "f:udvh" opts; do
+while getopts "f:bdhsuv" opts; do
     case $opts in
-        f ) config_file_path=$OPTARG;;
-        u ) update=true;;
+        b ) debug=true;;
         d ) delete=true;;
-        v ) version_message; exit 0;;
+        f ) config_file_path=$OPTARG;;
         h ) help_message; exit 0;;
+        s ) status=true;;
+        u ) update=true;;
+        v ) version_message; exit 0;;
     esac
 done
 
-# TODO: Condition / Error handling for if -u and -d passed
+action_flag_count=0
+if [ -n "$delete" ]; then
+    action_flag_count=$[$action_flag_count +1]
+    flags_used+="-d "
+fi
+if [ -n "$update" ]; then
+    action_flag_count=$[$action_flag_count +1]
+    flags_used+="-u "
+fi
+if [ -n "$status" ]; then
+    action_flag_count=$[$action_flag_count +1]
+    flags_used+="-s "
+fi
+if [ "$action_flag_count" -gt 1 ]; then
+    usage
+    echo "ERROR: Multiple Action Flags detected! ($flags_used)"
+    exit 1
+fi
 
 if [ "$config_file_path" == "" ]; then
 usage
@@ -126,35 +155,26 @@ function show_header {
         TEMPLATE=${yaml_templatelocal}
     fi
 
-    HEADER="
------------------------------------------------------------------------------------------------------------------------
-|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
------------------------------------------------------------------------------------------------------------------------
-CloudFormation Launcher
-v$script_version
------------------------------------------------------------------------------------------------------------------------
-PARAMETERS
------------------------------------------------------------------------------------------------------------------------
-ACTION:               $ACTION
-STACK NAME:           $yaml_stackname
-PROFILE:              $yaml_profilename
-TEMPLATE:             $TEMPLATE
-PARAMETERS FILE:      $yaml_parametersfilepath
-CAPABILITY IAM:       $yaml_capabilityiam
-CAPABILITY NAMED IAM: $yaml_capabilitynamediam
-NO LOG:               $yaml_nolog
-LOG FILE:             $yaml_logfile
-VERBOSE:              $yaml_verbose
-LAUNCHER CONFIG:      $config_file_path
-DELETE ON FAILURE:    $yaml_deletecreatefailures
-WAIT TIME (Sec):      $yaml_waittime
-MAX WAITS (Loops):    $yaml_maxwaits
------------------------------------------------------------------------------------------------------------------------
-  "
-	if [ "$yaml_noheader" == "true" ]; then
-	    message ''
+	if [ "$debug" == "true" ]; then
+	    message "** Start CloudFormation Launcher v$script_version **"
+        message '** PARAMETERS **'
+        message "ACTION: $ACTION"
+        message "STACK NAME: $yaml_stackname"
+        message "PROFILE: $yaml_profilename"
+        message "TEMPLATE: $TEMPLATE"
+        message "PARAMETERS FILE: $yaml_parametersfilepath"
+        message "CAPABILITY IAM: $yaml_capabilityiam"
+        message "CAPABILITY NAMED IAM: $yaml_capabilitynamediam"
+        message "NO LOG: $yaml_nolog"
+        message "LOG FILE: $yaml_logfile"
+        message "VERBOSE: $yaml_verbose"
+        message "LAUNCHER CONFIG: $config_file_path"
+        message "DELETE ON FAILURE: $yaml_deletecreatefailures"
+        message "WAIT TIME (Sec): $yaml_waittime"
+        message "MAX WAITS (Loops): $yaml_maxwaits"
 	else
-		message "$HEADER"
+	    message "** Start CloudFormation Launcher v$script_version **"
+        message "ACTION: $ACTION"
 	fi
 }
 
@@ -200,7 +220,7 @@ function run_stack_command {
                                         --parameters file://${yaml_parametersfilepath}
     fi
     exit_check $? "Executed ${ACTION} Stack Command"
-    message ''
+    echo ''
 
     monitor_stack_status
 }
@@ -217,20 +237,20 @@ function output_create_complete {
     # If Verbose True then Output all the Create Complete Events for Debugging
     if [ "$yaml_verbose" == "true" ]; then
         message "REPORT: CREATE COMPLETE EVENTS..."
-        message ''
+        echo ''
         create_complete=$(aws cloudformation describe-stack-events --profile ${yaml_profilename} --stack-name ${yaml_stackname} --output json --query 'StackEvents[?ResourceStatus==`CREATE_COMPLETE`]')
         message "$create_complete"
-        message ''
+        echo ''
     fi
 }
 
 function output_create_failed {
     # Output all the Create Failed Events for Debugging
     message "REPORT: CREATE FAILED EVENTS..."
-    message ''
+    echo ''
     create_failed=$(aws cloudformation describe-stack-events --profile ${yaml_profilename} --stack-name ${yaml_stackname} --output json --query 'StackEvents[?ResourceStatus==`CREATE_FAILED`]')
     message "$create_failed"
-    message ''
+    echo ''
 }
 
 function monitor_delete_stack_status {
@@ -242,14 +262,18 @@ function monitor_delete_stack_status {
         STATUS=$(aws cloudformation describe-stacks --profile ${yaml_profilename} --stack-name "$yaml_stackname" --output text --query 'Stacks[*].StackStatus')
         exit_code=$?
         exit_check ${exit_code} "Executing Status Check"
-        message "REPORT: Status (${STATUS})"
+        if [ ${exit_code} -eq 255 ]; then
+            message "REPORT: Status (DOES NOT EXIST)"
+        else
+            message "REPORT: Status (${STATUS})"
+        fi
 
         if [[ "$STATUS" == "DELETE_IN_PROGRESS" && ${count} -lt ${max_waits} ]]; then
             message "REPORT: Delete not complete!"
             message "REPORT: Attempt $count of $max_waits."
             display_runtime
             message "Polling again in $wait_time seconds..."
-            message ''
+            echo ''
             sleep ${wait_time}
             count=$(( count + 1 ))
         elif [ ${exit_code} -eq 255 ]; then
@@ -261,6 +285,15 @@ function monitor_delete_stack_status {
             break
         fi
     done
+}
+
+function get_stack_status {
+    STATUS=$(aws cloudformation describe-stacks --profile ${yaml_profilename} --stack-name "$yaml_stackname" --output text --query 'Stacks[*].StackStatus' 2>/dev/null)
+    if [ $? -eq 255 ]; then
+        echo "Statck Status: (DOES NOT EXIST)"
+    else
+        echo "Stack Status: ($STATUS)"
+    fi
 }
 
 function monitor_stack_status {
@@ -278,7 +311,7 @@ function monitor_stack_status {
             message "REPORT: Attempt $count of $max_waits."
             display_runtime
             message "REPORT: Polling again in $wait_time seconds..."
-            message ''
+            echo ''
             sleep ${wait_time}
             count=$(( count + 1 ))
         elif [ "$STATUS" == "${ACTION}_COMPLETE" ]; then
@@ -292,14 +325,14 @@ function monitor_stack_status {
             message "REPORT: Attempt $count of $max_waits."
             display_runtime
             message "REPORT: Polling again in $wait_time seconds..."
-            message ''
+            echo ''
             sleep ${wait_time}
             count=$(( count + 1 ))
         elif [ "$STATUS" == "ROLLBACK_IN_PROGRESS" ]; then
             # If Delete Stack on failures when Creating is True then Delete the Stack after grabbing Events
             if [[ "$task_type" == "create-stack" && "$yaml_deletecreatefailures" == "true" ]]; then
                 message 'ERROR:  Failed and Rolling Back!'
-                message ''
+                echo ''
                 output_create_complete
                 output_create_failed
                 delete_stack_command
@@ -313,7 +346,7 @@ function monitor_stack_status {
                 message "REPORT: Attempt $count of $max_waits."
                 display_runtime
                 message "Polling again in $wait_time seconds..."
-                message ''
+                echo ''
                 sleep ${wait_time}
                 count=$(( count + 1 ))
             fi
@@ -322,11 +355,11 @@ function monitor_stack_status {
             break
         elif [ "$STATUS" == "ROLLBACK_COMPLETE" ]; then
             message "REPORT: Rollback complete!"
-            message ''
+            echo ''
             break
         else
             message 'ERROR: The stack has not create or update has failed.'
-            message ''
+            echo ''
             break
         fi
     done
@@ -344,7 +377,10 @@ start_time=$(date +%s)
 eval $(parse_yaml ${config_file_path} "yaml_")
 #set | grep yaml_
 count=1
-if [ "$delete" == "true" ]; then
+if [ "$status" == "true" ]; then
+    echo "$config_file_path"
+    get_stack_status
+elif [ "$delete" == "true" ]; then
     ACTION=DELETE
     show_header
     delete_stack_command
@@ -359,24 +395,28 @@ else
     run_stack_command
 fi
 
-# Runtime
-end_time=$(date +%s)
-message ''
-message "ENDTIME: ($(date))"
-display_runtime
-message ''
-
-# Results
-if [[ "$delete_successful" == "true" && "$ACTION" == "DELETE" ]]; then
-    message "REPORT: DELETE SUCCESS!"
-    message ''
-    exit 0
-elif [ "$successful" == "true" ]; then
-    message "REPORT: $ACTION SUCCESS!"
-    message ''
-    exit 0
+if [ "$status" == "true" ]; then
+    echo ''
 else
-    message "ERROR: $ACTION FAILED!"
-    message ''
-  exit 1
+    # Runtime
+    end_time=$(date +%s)
+    echo ''
+    message "ENDTIME: ($(date))"
+    display_runtime
+    echo ''
+
+    # Results
+    if [[ "$delete_successful" == "true" && "$ACTION" == "DELETE" ]]; then
+        message "REPORT: DELETE SUCCESS!"
+        echo ''
+        exit 0
+    elif [ "$successful" == "true" ]; then
+        message "REPORT: $ACTION SUCCESS!"
+        echo ''
+        exit 0
+    else
+        message "ERROR: $ACTION FAILED!"
+        echo ''
+      exit 1
+    fi
 fi
