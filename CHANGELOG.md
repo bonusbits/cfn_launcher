@@ -1,5 +1,4 @@
-##CHANGE LOG
----
+# CHANGE LOG
 
 ## 1.6.0 - 03/21/2017 - Levon Becker
 * Added Stack Status Option
