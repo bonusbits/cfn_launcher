@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 1.6.1 - 03/24/2017 - Levon Becker
+* Added Config to regular header output
+
 ## 1.6.0 - 03/21/2017 - Levon Becker
 * Added Stack Status Option
 * Added Error Handling for multiple Action Flag Options

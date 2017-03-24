@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Static Variables
 successful=false
 delete_successful=false
 triggered_delete=false
-script_version=1.6.0
+script_version=1.6.1
 # unset stack_name
 # read -p "Enter Stack Name: " stack_name
 
@@ -175,6 +175,7 @@ function show_header {
 	else
 	    message "** Start CloudFormation Launcher v$script_version **"
         message "ACTION: $ACTION"
+        message "CONFIG: $config_file_path"
 	fi
 }
 
