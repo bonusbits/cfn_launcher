@@ -120,22 +120,22 @@ cfnl-set-path $HOME/.cfnl/uswest2/client1/account01/prd/project01
 
 function cfc() {
     #echo "Running Create Stack (/usr/local/bin/cfnl -f ${CFNL_PATH}/${1}.yml)"
-    /usr/local/bin/cfnl -f "$CFNL_PATH/$1.yml"
+    /usr/local/bin/cfnl -f "$CFNL_PATH/$1.yml $@"
 }
 
 function cfu() {
     #echo "Running Update Stack (/usr/local/bin/cfnl -u -f ${CFNL_PATH}/${1}.yml)"
-    /usr/local/bin/cfnl -u -f "$CFNL_PATH/$1.yml"
+    /usr/local/bin/cfnl -u -f "$CFNL_PATH/$1.yml $@"
 }
 
 function cfd() {
     #echo "Running Delete Stack (/usr/local/bin/cfnl -d -f ${CFNL_PATH}/${1}.yml)"
-    /usr/local/bin/cfnl -d -f "$CFNL_PATH/$1.yml"
+    /usr/local/bin/cfnl -d -f "$CFNL_PATH/$1.yml $@"
 }
 
 function cfs() {
     # echo "Running Stack Status (/usr/local/bin/cfnl -s -f ${CFNL_PATH}/${1}.yml)"
-    /usr/local/bin/cfnl -s -f "$CFNL_PATH/$1.yml"
+    /usr/local/bin/cfnl -s -f "$CFNL_PATH/$1.yml $@"
 }
 ```
 
