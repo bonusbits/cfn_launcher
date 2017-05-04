@@ -29,21 +29,23 @@ This has been test
 The following can be displayed with the *-h* switch.
     
 ```
-CloudFormation Launcher v1.6.0
+CloudFormation Launcher v1.7.0
 
 Usage: /usr/local/bin/cfnl [-u | -d | -s] -f ./config_file.yml
 
 Options:
     -f File Path             :  (Required) YAML Script Config File Full Path
-    -u Update Stack          :  (Action Flag) Sets Action to Update Stack
-    -d Delete Stack          :  (Action Flag) Sets Action to Delete Stack
-    -s Stack Status          :  (Action Flag) Sets Action to Get Stack Status
+    -r Region                :  Overrides yaml config, ENV:AWS_REGION and aws config.
+                                Set Order: 1. Parameter 2. Yaml Config 3. ENV:AWS_REGION 4. Default us-west-2
+    -u Action Update         :  Action Flag to Update Stack
+    -d Action Delete         :  Action Flag to Delete Stack
+    -s Action Status         :  Action Flag to Get Stack Status
     -b Debug Output          :  Display Additional Output for Debugging
     -h Help                  :  Displays Help Information
     -v Version               :  Displays Script Version
 
 Action Flags:
-    Only one action flag can be used. The default Action is 'Create'.
+    Only one action flag can be used. The default Action is 'Create' (No flag).
     The three override Action Flags are -u, -d and -s.
 
 Description:
@@ -55,31 +57,43 @@ Description:
 YAML Config File Format Example:
     stackname: stack1
     profilename: awsaccount
+    region: us-west-2
     templateurl: https://s3.amazonaws.com/bucket/webapp1.yml # Or .json
     templatelocal: /path/to/cfn/templates/webapp1.yml # Unless using URL
-    parametersfilepath: /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.json
+    parametersfilepath: /Users/gsm987/.cfnl/uswest2/client1/account1/dev/webapp1.json
     capabilityiam: false
     capabilitynamediam: false
     deletecreatefailures: true
     uses3template: true
     nolog: false
-    logfile: /Users/levon/.cfnl/logs/uswest2/client1/account1/dev/webapp1.log
+    logfile: /Users/gsm987/.cfnl/logs/uswest2/client1/account1/dev/webapp1.log
     verbose: true
     waittime: 5
     maxwaits: 180
 
 Examples:
     Create Stack
-    /usr/local/bin/cfnl -f /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+    /usr/local/bin/cfnl -f /Users/gsm987/.cfnl/uswest2/client1/account1/dev/webapp1.yml
 
     Update Stack
-    /usr/local/bin/cfnl -u -f /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+    /usr/local/bin/cfnl -u -f /Users/gsm987/.cfnl/uswest2/client1/account1/dev/webapp1.yml
 
     Delete Stack
-    /usr/local/bin/cfnl -d -f /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+    /usr/local/bin/cfnl -d -f /Users/gsm987/.cfnl/uswest2/client1/account1/dev/webapp1.yml
 
     Stack Status
-    /usr/local/bin/cfnl -s -f /Users/levon/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+    /usr/local/bin/cfnl -s -f /Users/gsm987/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+
+    Create Stack with Debugging
+    /usr/local/bin/cfnl -b -f /Users/gsm987/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+
+    Delete Stack with Debugging
+    /usr/local/bin/cfnl -d -b -f /Users/gsm987/.cfnl/uswest2/client1/account1/dev/webapp1.yml
+
+Author:
+    Levon Becker
+    https://github.com/LevonBecker
+    https://www.bonusbits.com
 ```    
     
 ## Example BASH Profile Functions and Aliases
@@ -119,23 +133,43 @@ function cfnl-set-path() {
 cfnl-set-path $HOME/.cfnl/uswest2/client1/account01/prd/project01
 
 function cfc() {
-    #echo "Running Create Stack (/usr/local/bin/cfnl -f ${CFNL_PATH}/${1}.yml)"
+    # Create
     /usr/local/bin/cfnl -f "$CFNL_PATH/$1.yml"
 }
 
 function cfu() {
-    #echo "Running Update Stack (/usr/local/bin/cfnl -u -f ${CFNL_PATH}/${1}.yml)"
+    # Update
     /usr/local/bin/cfnl -u -f "$CFNL_PATH/$1.yml"
 }
 
 function cfd() {
-    #echo "Running Delete Stack (/usr/local/bin/cfnl -d -f ${CFNL_PATH}/${1}.yml)"
+    # Delete
     /usr/local/bin/cfnl -d -f "$CFNL_PATH/$1.yml"
 }
 
 function cfs() {
-    # echo "Running Stack Status (/usr/local/bin/cfnl -s -f ${CFNL_PATH}/${1}.yml)"
+    # Status
     /usr/local/bin/cfnl -s -f "$CFNL_PATH/$1.yml"
+}
+
+function cfcd() {
+    # Create with Debug
+    /usr/local/bin/cfnl -b -f "$CFNL_PATH/$1.yml"
+}
+
+function cfud() {
+    # Update with Debug
+    /usr/local/bin/cfnl -b -u -f "$CFNL_PATH/$1.yml"
+}
+
+function cfdd() {
+    # Delete with Debug
+    /usr/local/bin/cfnl -b -d -f "$CFNL_PATH/$1.yml"
+}
+
+function cfsd() {
+    # Status with Debug
+    /usr/local/bin/cfnl -b -s -f "$CFNL_PATH/$1.yml"
 }
 ```
 

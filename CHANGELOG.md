@@ -1,5 +1,19 @@
 # CHANGE LOG
 
+## 1.7.0 - 05/04/2017 - Levon Becker
+* Added create log path if missing.
+* Added aws region to be included in the aws cli calls
+    * Added parameter to set region and override others
+    * Added yaml config region: key/value check
+    * Third option that is used for the region is to use ENV:AWS_REGION
+    * Last is to default to a region us-west-2
+    * When switching around between regions your .aws/config could be hard set to a region and is a headache to have to change the config when it's plenty easy to add as argument or just use ENV var so more dynamic.
+* Renamed REPORT to INFO for logging
+* Added some more debug messages
+* Added status show_header section
+* Moved start and add debug enable messages to be before any functions are run outside of show_header
+* Remove Dev Null for Status check because apparently exit 255 can be that the stack doesn't exist, but also if your STS Token has expired.. lame that it's not a different exit code.
+
 ## 1.6.1 - 03/24/2017 - Levon Becker
 * Added Config to regular header output
 

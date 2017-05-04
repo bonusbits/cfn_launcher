@@ -1,5 +1,6 @@
 stackname: stack1
 profilename: awsaccount
+region: us-west-2
 templateurl: https://s3.amazonaws.com/bucket/webapp1.yml # Or .json
 templatelocal: /path/to/cfn/templates/webapp1.yml # Unless using URL
 parametersfilepath: $HOME/.cfnl/uswest2/client1/account1/dev/webapp1.json
