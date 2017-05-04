@@ -339,7 +339,7 @@ function monitor_delete_stack_status {
 function get_stack_status {
     STATUS=$(aws cloudformation describe-stacks --profile ${yaml_profilename} --region ${region} --stack-name "$yaml_stackname" --output text --query 'Stacks[*].StackStatus')
     if [ $? -eq 255 ]; then
-        message "STATUS: (DOES NOT EXIST) OR Token Expired"
+        message "STATUS: (DOES NOT EXIST) OR (TOKEN EXPIRED)"
     else
         message "STATUS: ($STATUS)"
     fi
