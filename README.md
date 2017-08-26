@@ -1,7 +1,7 @@
 # CloudFormation Launcher (CFNL) BASH Script
 [![Version](https://img.shields.io/badge/version-v1.7.0-blue.svg)](https://github.com/bonusbits/cfn_converter)
 [![Join the chat at https://gitter.im/bonusbits](https://badges.gitter.im/bonusbits/bonusbits.svg)](https://gitter.im/bonusbits?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![GitHub issues](https://img.shields.io/github/issues/bonusbits/cfn_converter.svg)](https://github.com/bonusbits/cfn_converter/issues)
+[![GitHub issues](https://img.shields.io/github/issues/bonusbits/cfn_launcher.svg)](https://github.com/bonusbits/cfn_launcher/issues)
 
 ## Purpose
 Used to launch CloudFormation Template from command line using AWS CLI commands.
